@@ -6,6 +6,8 @@ import {
   useBalance,
   useReadContract,
   useWriteContract,
+  useWaitForTransactionReceipt,
+  useBlockNumber,
 } from "wagmi";
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
@@ -13,18 +15,18 @@ import EthIcon from "../assets/images/token/eth.png";
 import Notification from "../components/notification/Notification";
 
 const PresaleContextProvider = ({ children }) => {
+  const BLOCK_INDEXING_COUNT = 3;
+
   const [configModule, setConfigModule] = useState(configModule1);
   const [selectedImg, setSelectedImg] = useState(EthIcon);
-
   const { address: addressData, isConnected } = useAccount();
 
   const [userBalance, setUserBalance] = useState("0");
-
   const [currentStage, setCurrentStage] = useState(0);
   const [currentPrice, setCurrentPrice] = useState("");
   const [stageEnd, setStageEnd] = useState(1729066440);
   const [tokenName, setTokenName] = useState("Battery Coin TOKEN");
-  const [tokenSymbol, setTokenSymbol] = useState("Batt Coin");
+  const [tokenSymbol, setTokenSymbol] = useState("Batr Coin");
   const [presaleToken, setPresaleToken] = useState(0);
   const [tokenRemain, setTokenRemain] = useState(0);
   const [tokenPercent, setTokenPercent] = useState(0);
@@ -33,6 +35,7 @@ const PresaleContextProvider = ({ children }) => {
   const [buyAmount, setBuyAmount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [isApproved, setIsApproved] = useState(false);
+  const [isInit, setIsInit] = useState(false);
   const [hashValue, setHashValue] = useState(null);
   const [ethPrice, setETHPrice] = useState(0);
 
@@ -40,8 +43,70 @@ const PresaleContextProvider = ({ children }) => {
   const [isActiveNotification, setIsActiveNotification] = useState(false);
   const [notificationDone, setNotificationDone] = useState(false);
   const [notificationMsg, setNotificationMsg] = useState("");
-
   const [presaleStatus, setPresaleStatus] = useState(null);
+  const [transactionHash, setTransactionHash] = useState(null);
+  const [txBlockNumber, setTxBlockNumber] = useState(null);
+  const [isEnableBuy, setIsEnableBuy] = useState(true);
+
+  const {
+    data: buyTokenData,
+    writeContract,
+    isPending: buyTokenIsLoading,
+    isSuccess: buyTokenIsSuccess,
+    error: buyTokenError,
+  } = useWriteContract();
+
+  // const {
+  //   isLoading: isConfirming,
+  //   isSuccess: isConfirmed,
+  //   isError,
+  //   error,
+  //   data: dataConfirmed,
+  //   refetch: waitingTransactionReceipt,
+  // } = useWaitForTransactionReceipt({
+  //   hash: transactionHash,
+  // });
+
+  const { data: blockNumber } = useBlockNumber({
+    watch: true,
+  });
+
+  const { data: presaleTokenAmountData } = useReadContract({
+    ...configModule.presaleTokenAmountCall,
+  });
+
+  const { data: pauseStatus } = useReadContract({
+    ...configModule.pauseStatus,
+  });
+
+  const { data: getHashValuesByAddress } = useReadContract({
+    ...configModule.getHashValuesByAddress,
+    args: [addressData],
+  });
+
+  const { data: USDTallowance, refetch: refetchUSDTAllowance } =
+    useReadContract({
+      ...configModule.USDTTokenAllowance,
+      args: [addressData, configModule.presaleContractConfig.address],
+    });
+
+  const { data: USDCallowance, refetch: refetchUSDCallowance } =
+    useReadContract({
+      ...configModule.USDCTokenAllowance,
+      args: [addressData, configModule.presaleContractConfig.address],
+    });
+
+  const { data: userLastHashValueData, refetch: refetchLastHashValue } =
+    useReadContract({
+      ...configModule.lastHashValue,
+      args: [addressData],
+    });
+
+  const { data: presaleInfoData, refetch: refetchPresaleInfo } =
+    useReadContract({
+      ...configModule.presaleInfo,
+      args: [userLastHashValueData],
+    });
 
   let balanceData;
   if (paymentToken === "usdt") {
@@ -63,73 +128,91 @@ const PresaleContextProvider = ({ children }) => {
     balanceData = data;
   }
 
-  const { data: presaleTokenAmountData } = useReadContract({
-    ...configModule.presaleTokenAmountCall,
-  });
+  useEffect(() => {
+    if (
+      txBlockNumber !== null &&
+      BigInt(txBlockNumber) + BigInt(BLOCK_INDEXING_COUNT) < BigInt(blockNumber)
+    ) {
+      // console.log({ txBlockNumber });
+      // console.log({ blockNumber });
+      setTxBlockNumber(null);
+      if (isApproved) {
+        buyTokenSuccessMsg();
+        setIsApproved(false);
 
-  const { data: pauseStatus } = useReadContract({
-    ...configModule.pauseStatus,
-  });
+        if (paymentToken === "usdt") {
+          refetchUSDTAllowance();
+        }
+        if (paymentToken === "usdc") {
+          refetchUSDCallowance();
+        }
+      } else {
+        fetchPresaleInfo();
+      }
+    }
+  }, [blockNumber]);
 
-  const { data: userLastHashValue } = useReadContract({
-    ...configModule.lastHashValue,
-    args: [addressData],
-  });
+  // TODO: fix in the future
+  // useEffect(() => {
+  //   if (transactionHash) {
+  //     waitingTransactionReceipt();
+  //   }
+  // }, [transactionHash]);
 
-  const { data: getHashValuesByAddress } = useReadContract({
-    ...configModule.getHashValuesByAddress,
-    args: [addressData],
-  });
+  // useEffect(() => {
+  //   if (isError) {
+  //     console.error("Transaction failed:", error);
+  //     if (error) {
+  //       console.error("Error message:", error.message);
+  //       console.error("Error stack:", error.stack);
+  //     }
+  //   }
 
-  const {
-    data: buyTokenData,
-    writeContract,
-    isPending: buyTokenIsLoading,
-    isSuccess: buyTokenIsSuccess,
-    error: buyTokenError,
-  } = useWriteContract();
-
-  const makeEmptyInputs = () => {
-    setPaymentAmount(0);
-    setBuyAmount(0);
-    setTotalAmount(0);
-  };
+  //   if (isConfirmed) {
+  //     if (dataConfirmed && dataConfirmed["status"] === "success") {
+  //       setTxBlockNumber(dataConfirmed.blockNumber);
+  //     }
+  //   }
+  // }, [isConfirmed, isConfirming, dataConfirmed, isError, error]);
 
   useEffect(() => {
-    if (isApproved) {
+    if (!isInit) {
       refetchUSDTAllowance();
       refetchUSDCallowance();
+
+      setIsInit(true);
     }
-  }, [isApproved]);
+  }, [isInit]);
 
   useEffect(() => {
+    makeEmptyInputs();
+
     if (paymentToken === "eth") {
-      const value = getEthPrice();
-      if (value != null) {
-        setETHPrice(value);
-      } else {
-        setETHPrice(0);
-      }
+      getEthPrice().then((value) => {
+        if (value != null) {
+          setETHPrice(value);
+        } else {
+          setETHPrice(0);
+        }
+      });
     }
   }, [paymentToken]);
 
   useEffect(() => {
     if (buyTokenIsLoading) {
-      buyTokenLoadingMsg("Transaction Processing. Click “Confirm”.");
+      buyTokenLoadingMsg("Processing transaction... Please wait one minute.");
     }
 
     if (buyTokenError) {
+      setIsEnableBuy(true);
       setIsActiveNotification(false);
       setHashValue(null);
       setPresaleStatus(buyTokenError?.shortMessage);
     }
 
     if (buyTokenIsSuccess) {
-      buyTokenSuccessMsg();
-      const timeoutId = setTimeout(() => {
-        window.location.reload();
-      }, 10000);
-      return () => clearTimeout(timeoutId);
+      setTxBlockNumber(blockNumber);
+      // handleTransaction(buyTokenData);
     }
   }, [
     isActiveNotification,
@@ -167,7 +250,7 @@ const PresaleContextProvider = ({ children }) => {
         Math.round(
           new BigNumber(presaleTokenAmountData.remainAmount) /
             Math.pow(10, configModule.battDecimal)
-        )
+        ) - Math.round(presaleToken * 0.143)
       );
       setTotalAmount(presaleToken);
       setStageEnd(parseFloat(presaleTokenAmountData.startDate));
@@ -190,6 +273,12 @@ const PresaleContextProvider = ({ children }) => {
     balanceData,
   ]);
 
+  const makeEmptyInputs = () => {
+    setPaymentAmount(0);
+    setBuyAmount(0);
+    setTotalAmount(0);
+  };
+
   const getEthPrice = async () => {
     try {
       const response = await fetch(
@@ -204,14 +293,69 @@ const PresaleContextProvider = ({ children }) => {
 
       const data = await response.json();
       if (data && data["USD"]) {
-        setETHPrice(data["USD"]);
+        return data["USD"];
       } else {
         console.error("Failed to fetch ETH price:", data.error);
+        return null;
       }
     } catch (error) {
       console.error("Error fetching ETH price:", error);
+      return null;
     }
   };
+
+  const fetchPresaleInfo = async () => {
+    try {
+      refetchLastHashValue();
+      // console.log({ userLastHashValueData });
+      refetchPresaleInfo();
+      submitReservationData(presaleInfoData);
+    } catch (error) {
+      console.error("Error fetching block number:", error);
+    }
+  };
+
+  const submitReservationData = (presaleInfoData) => {
+    const url = new URL(window.location.href);
+    const reservationData = {
+      user_id: url.searchParams.get("userID"),
+      round_id: presaleInfoData.roundNo?.toString() || null,
+      reserve_type: "crypto",
+      wallet_address: presaleInfoData.userAddress || null,
+      blockchain_net: "Ethereum", // Assuming Ethereum as the blockchain network
+      asset_type: presaleInfoData.tokenSymbol || null,
+      hash_value: presaleInfoData.hashValue || null,
+      total_batt_amount: presaleInfoData.totalBATRAmount?.toString() || null,
+      total_paid_amount: presaleInfoData.totalPaidAmount?.toString() || null,
+      is_released: presaleInfoData.isReleased || false,
+      is_refunded: presaleInfoData.isRefunded || false,
+    };
+
+    fetch("https://api2.batterycoin.org/api/accounts/reserve/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(reservationData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to submit reservation data");
+        }
+        return response.json();
+      })
+      .then((result) => {
+        buyTokenSuccessMsg();
+        makeEmptyInputs();
+      })
+      .catch((error) => {
+        console.error("Error submitting reservation data:", error);
+      });
+  };
+
+  // const handleTransaction = (newHash) => {
+  //   setTransactionHash(newHash);
+  // };
 
   //handle payment input
   const handlePaymentInput = (e) => {
@@ -230,7 +374,6 @@ const PresaleContextProvider = ({ children }) => {
 
     if (_inputValue == "") {
       setPresaleStatus(null);
-
       setTotalAmount(0);
     } else if (parseFloat(userBalance) < parseFloat(_inputValue)) {
       setHashValue(null);
@@ -241,14 +384,13 @@ const PresaleContextProvider = ({ children }) => {
       } else {
         setHashValue(null);
         setPresaleStatus("Please buy at least 1 token!");
-
         setTotalAmount(0);
       }
     }
   };
 
   //handle payment input
-  const handleBATTTokenInput = (e) => {
+  const handleBATRTokenInput = (e) => {
     let _inputValue = e.target.value;
     let _calcValue = 0;
 
@@ -264,7 +406,6 @@ const PresaleContextProvider = ({ children }) => {
 
     if (_inputValue == "") {
       setPresaleStatus(null);
-
       setTotalAmount(0);
     } else if (parseFloat(userBalance) < parseFloat(_calcValue)) {
       setHashValue(null);
@@ -275,7 +416,6 @@ const PresaleContextProvider = ({ children }) => {
       } else {
         setHashValue(null);
         setPresaleStatus("Please buy at least 1 token!");
-
         setTotalAmount(0);
       }
     }
@@ -286,19 +426,9 @@ const PresaleContextProvider = ({ children }) => {
     paymentAmount * 10 ** configModule.usdtDecimal
   ).toString();
 
-  const { data: USDTallowance, refetch: refetchUSDTAllowance } =
-    useReadContract({
-      ...configModule.USDTTokenAllowance,
-      args: [addressData, configModule.presaleContractConfig.address],
-    });
-
-  const { data: USDCallowance, refetch: refetchUSDCallowance } =
-    useReadContract({
-      ...configModule.USDCTokenAllowance,
-      args: [addressData, configModule.presaleContractConfig.address],
-    });
-
   const approveUsdt = () => {
+    setIsEnableBuy(false);
+    setIsApproved(true);
     writeContract({
       ...configModule.USDTTokenApprove,
       args: [
@@ -309,6 +439,8 @@ const PresaleContextProvider = ({ children }) => {
   };
 
   const approveUsdc = () => {
+    setIsEnableBuy(false);
+    setIsApproved(true);
     writeContract({
       ...configModule.USDCTokenApprove,
       args: [
@@ -320,26 +452,25 @@ const PresaleContextProvider = ({ children }) => {
 
   const buyToken = async () => {
     if (paymentAmount != "") {
+      setIsEnableBuy(false);
       const tokenAddress =
         paymentToken === "usdt"
           ? configModule.usdtAddress
           : configModule.usdcAddress;
 
       setPresaleStatus(null);
-      writeContract({
-        ...configModule.buyTokenCall,
-        args: [
-          Number(
-            new BigNumber(buyAmount * Math.pow(10, configModule.battDecimal))
-          ).toLocaleString("en-US", {
-            style: "decimal",
-            useGrouping: false, //Flip to true if you want to include commas
-          }),
-          tokenAddress,
-        ],
+
+      const value = Number(
+        new BigNumber(buyAmount * Math.pow(10, configModule.battDecimal))
+      ).toLocaleString("en-US", {
+        style: "decimal",
+        useGrouping: false, //Flip to true if you want to include commas
       });
 
-      makeEmptyInputs();
+      writeContract({
+        ...configModule.buyTokenCall,
+        args: [value, tokenAddress],
+      });
     } else {
       setHashValue(null);
       setPresaleStatus("Please enter pay amount!");
@@ -350,6 +481,10 @@ const PresaleContextProvider = ({ children }) => {
     if (paymentAmount != "") {
       setPresaleStatus(null);
       try {
+        setIsEnableBuy(false);
+        const formattedPaymentAmount = ethers.parseEther(
+          parseFloat(paymentAmount).toFixed(18)
+        );
         writeContract({
           ...configModule.buyTokenWithETHCall,
           args: [
@@ -360,10 +495,8 @@ const PresaleContextProvider = ({ children }) => {
               useGrouping: false, //Flip to true if you want to include commas
             }),
           ],
-          value: ethers.parseEther(paymentAmount.toString() || "0"),
+          value: formattedPaymentAmount,
         });
-
-        makeEmptyInputs();
       } catch (error) {
         console.error("Error during transaction:", error);
         setPresaleStatus("Transaction failed. Please try again.");
@@ -384,7 +517,11 @@ const PresaleContextProvider = ({ children }) => {
   const buyTokenSuccessMsg = () => {
     setNotificationDone(true);
     setNotificationMsg("Your transaction has been successfully completed");
-    setIsApproved(true);
+    setIsEnableBuy(true);
+    setTimeout(() => {
+      setIsActiveNotification(false);
+      setNotificationDone(false);
+    }, 3000);
   };
 
   return (
@@ -409,7 +546,7 @@ const PresaleContextProvider = ({ children }) => {
         setPresaleStatus,
         makeEmptyInputs,
         handlePaymentInput,
-        handleBATTTokenInput,
+        handleBATRTokenInput,
         buyToken,
         buyTokenWithETH,
         buyTokenData,
@@ -423,11 +560,10 @@ const PresaleContextProvider = ({ children }) => {
         approveUsdt,
         approveUsdc,
         amountUSDToPay,
-        isApproved,
         hashValue,
-        userLastHashValue,
         getHashValuesByAddress,
         pauseStatus,
+        isEnableBuy,
       }}
     >
       {children}

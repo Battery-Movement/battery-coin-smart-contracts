@@ -20,7 +20,6 @@ import {
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import {
   argentWallet,
-  coinbaseWallet,
   imTokenWallet,
   ledgerWallet,
   metaMaskWallet,
@@ -36,12 +35,7 @@ const connectors = connectorsForWallets(
   [
     {
       groupName: "Recommended",
-      wallets: [
-        metaMaskWallet,
-        walletConnectWallet,
-        coinbaseWallet,
-        rainbowWallet,
-      ],
+      wallets: [metaMaskWallet, walletConnectWallet, rainbowWallet],
     },
     {
       groupName: "Others",

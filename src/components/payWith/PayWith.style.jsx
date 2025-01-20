@@ -255,7 +255,7 @@ const PayWithStyleWrapper = styled.div`
       }
     }
 
-    &__hash-value {
+    &__approve {
       margin-bottom: 30px;
       border-radius: 10px;
       padding: 10px 14px;

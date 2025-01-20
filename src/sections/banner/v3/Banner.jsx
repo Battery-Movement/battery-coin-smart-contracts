@@ -44,7 +44,11 @@ const Banner = () => {
         <div className="row">
           <div
             className={
-              Array.isArray(getHashValuesByAddress) ? "col-lg-8" : "col-lg-12"
+              Array.isArray(getHashValuesByAddress)
+                ? getHashValuesByAddress.length > 0
+                  ? "col-lg-8"
+                  : "col-lg-12"
+                : ""
             }
           >
             <div className="mb-20 d-flex align-items-center justify-content-between gap-1 flex-wrap">
@@ -129,17 +133,17 @@ const Banner = () => {
                               {parseFloat(item.roundNo) + 1}
                             </p>
                             <p className="mb-1">
-                              <strong>BATT Token Price:</strong> $
+                              <strong>BATR Token Price:</strong> $
                               {parseFloat(item.tokenPrice) / 100}
                             </p>
                             <p className="mb-1">
-                              <strong>Total BATT Amount:</strong>{" "}
-                              {parseFloat(item.totalBATTAmount) /
+                              <strong>Total BATR Amount:</strong>{" "}
+                              {parseFloat(item.totalBATRAmount) /
                                 Math.pow(10, configModule.battDecimal)}
                             </p>
                             {/* <p className="mb-1">
-                              <strong>Remain BATT Amount:</strong>{" "}
-                              {parseFloat(item.releasedBATTAmount) /
+                              <strong>Remain BATR Amount:</strong>{" "}
+                              {parseFloat(item.releasedBATRAmount) /
                                 Math.pow(10, configModule.battDecimal)}
                             </p> */}
                             <p className="mb-0">

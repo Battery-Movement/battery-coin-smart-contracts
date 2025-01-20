@@ -1,11 +1,11 @@
 import PayWithStyleWrapper from "./PayWith.style";
 import StatusIcon from "../../assets/images/icons/status.png";
+import StatusApproveIcon from "../../assets/images/icons/status_approve.png";
 import Dropdown from "./Dropdown/Dropdown";
 import { usePresaleData } from "../../utils/PresaleContext";
 import IconETH from "../../assets/images/token/ETH.jpg";
 import Icon1 from "../../assets/images/token/USDT.jpg";
 import Icon2 from "../../assets/images/token/USDC.jpg";
-import { useNavigate } from "react-router-dom";
 
 const PayWith = ({ variant }) => {
   const {
@@ -15,7 +15,7 @@ const PayWith = ({ variant }) => {
     paymentAmount,
     presaleStatus,
     handlePaymentInput,
-    handleBATTTokenInput,
+    handleBATRTokenInput,
     buyAmount,
     buyToken,
     buyTokenWithETH,
@@ -26,16 +26,23 @@ const PayWith = ({ variant }) => {
     approveUsdc,
     paymentToken,
     amountUSDToPay,
-    isApproved,
     pauseStatus,
+    isEnableBuy,
   } = usePresaleData();
 
-  const navigate = useNavigate();
+  const isPresalePaused = Date.now() < stageEnd * 1000 || pauseStatus;
+  const buttonText = isPresalePaused ? "Presale Paused" : "Buy Battery Coin";
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    navigate("/address");
-  };
+  const renderButton = (onClick, text) => (
+    <button
+      className={`presale-item-btn ${isPresalePaused ? "disabled-style" : ""}`}
+      onClick={onClick}
+      disabled={isPresalePaused}
+    >
+      {text}
+    </button>
+  );
+
   return (
     <PayWithStyleWrapper variant={variant}>
       {variant === "v1" && (
@@ -46,6 +53,19 @@ const PayWith = ({ variant }) => {
         </div>
       )}
 
+      <div className="presale-item mb-30">
+        <div className="presale-item-inner">
+          <label>Choose Payment Token</label>
+          <Dropdown
+            options={[
+              { value: "eth", label: "ETH", icon: IconETH },
+              { value: "usdt", label: "USDT", icon: Icon1 },
+              { value: "usdc", label: "USDC", icon: Icon2 },
+            ]}
+            onChange={(selectedOption) => setPaymentToken(selectedOption.value)}
+          />
+        </div>
+      </div>
       <form action="/" method="post">
         <div className="presale-item mb-30">
           <div className="presale-item-inner">
@@ -54,7 +74,7 @@ const PayWith = ({ variant }) => {
               type="number"
               placeholder="0"
               value={isNaN(buyAmount) ? "0" : buyAmount}
-              onChange={handleBATTTokenInput}
+              onChange={handleBATRTokenInput}
             />
           </div>
           <div className="presale-item-inner">
@@ -68,30 +88,6 @@ const PayWith = ({ variant }) => {
           </div>
         </div>
       </form>
-      <div className="presale-item mb-30">
-        <div className="presale-item-inner">
-          <label>Choose Payment Token</label>
-          <Dropdown
-            options={[
-              { value: "eth", label: "ETH", icon: IconETH },
-              { value: "usdt", label: "USDT", icon: Icon1 },
-              { value: "usdc", label: "USDC", icon: Icon2 },
-            ]}
-            onChange={(selectedOption) => {
-              if (selectedOption.value === "usdt") {
-                // Call function for USDT
-                setPaymentToken("usdt");
-              } else if (selectedOption.value === "usdc") {
-                // Call function for USDC
-                setPaymentToken("usdc");
-              } else if (selectedOption.value === "eth") {
-                // Call function for ETH
-                setPaymentToken("eth");
-              }
-            }}
-          />
-        </div>
-      </div>
       <div className="presale-item-msg">
         {presaleStatus && (
           <div className="presale-item-msg__content">
@@ -99,58 +95,40 @@ const PayWith = ({ variant }) => {
             <p>{presaleStatus}</p>
           </div>
         )}
+        {isEnableBuy &&
+          ((paymentToken === "usdt" &&
+            parseFloat(USDTallowance) < parseFloat(amountUSDToPay)) ||
+            (paymentToken === "usdc" &&
+              parseFloat(USDCallowance) < parseFloat(amountUSDToPay))) && (
+            <div className="presale-item-msg__approve">
+              <img src={StatusApproveIcon} alt="icon" />
+              <p>Please approve before purchase $BATR</p>
+            </div>
+          )}
       </div>
-      {paymentToken === "eth" ? (
-        <button
-          className={`presale-item-btn ${
-            Date.now() < stageEnd * 1000 || pauseStatus ? "disabled-style" : ""
-          }`}
-          onClick={buyTokenWithETH}
-          disabled={Date.now() < stageEnd * 1000 || pauseStatus}
-        >
-          {Date.now() < stageEnd * 1000 || pauseStatus
-            ? "Presale Paused"
-            : "Buy Battery Coin"}
+      {!isEnableBuy ? (
+        <button className="presale-item-btn disabled-style" disabled>
+          Processing...
         </button>
-      ) : parseFloat(paymentToken === "usdt" ? USDTallowance : USDCallowance) >=
-        parseFloat(amountUSDToPay) ? (
-        <button
-          className={`presale-item-btn ${
-            Date.now() < stageEnd * 1000 || pauseStatus ? "disabled-style" : ""
-          }`}
-          onClick={buyToken}
-          disabled={Date.now() < stageEnd * 1000 || pauseStatus}
-        >
-          {Date.now() < stageEnd * 1000 || pauseStatus
-            ? "Presale Paused"
-            : "Buy Battery Coin"}
-        </button>
-      ) : !isApproved ? (
-        <button
-          className={`presale-item-btn ${
-            Date.now() < stageEnd * 1000 || pauseStatus ? "disabled-style" : ""
-          }`}
-          onClick={paymentToken === "usdt" ? approveUsdt : approveUsdc}
-          disabled={Date.now() < stageEnd * 1000 || pauseStatus}
-        >
-          {Date.now() < stageEnd * 1000 || pauseStatus
-            ? "Presale Paused"
-            : "Approve"}
-        </button>
+      ) : paymentToken === "eth" ? (
+        renderButton(buyTokenWithETH, buttonText)
+      ) : paymentToken === "usdt" ? (
+        parseFloat(USDTallowance) >= parseFloat(amountUSDToPay) ? (
+          renderButton(buyToken, buttonText)
+        ) : (
+          renderButton(
+            approveUsdt,
+            isPresalePaused ? "Presale Paused" : "Approve"
+          )
+        )
+      ) : parseFloat(USDCallowance) >= parseFloat(amountUSDToPay) ? (
+        renderButton(buyToken, buttonText)
       ) : (
-        <button
-          className={`presale-item-btn ${
-            Date.now() < stageEnd * 1000 || pauseStatus ? "disabled-style" : ""
-          }`}
-          onClick={buyToken}
-          disabled={Date.now() < stageEnd * 1000 || pauseStatus}
-        >
-          {Date.now() < stageEnd * 1000 || pauseStatus
-            ? "Presale Paused"
-            : "Buy Battery Coin"}
-        </button>
+        renderButton(
+          approveUsdc,
+          isPresalePaused ? "Presale Paused" : "Approve"
+        )
       )}
-      {/* <button onClick={handleFormSubmit}>Register</button> */}
     </PayWithStyleWrapper>
   );
 };
