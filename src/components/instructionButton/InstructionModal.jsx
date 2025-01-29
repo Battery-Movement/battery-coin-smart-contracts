@@ -2,7 +2,7 @@ import InstructionModalWrapper from "./InstructionModal.style";
 import { CgClose } from "react-icons/cg";
 import { usePresaleModal } from "../../utils/ModalContext";
 
-const InstructionModal = ({ setIsModalVisible }) => {
+const InstructionModal = ({ setIsModalVisible, variant }) => {
   const { modalHandle } = usePresaleModal();
 
   const handleClose = () => {
@@ -21,6 +21,8 @@ const InstructionModal = ({ setIsModalVisible }) => {
             <button onClick={handleClose}>
               <CgClose />
             </button>
+
+            {variant === "v2" && (
             <div className="gittu-modal-body">
               <div className="mb-20">
                 <h5 className="ff-outfit fw-600 text-white">
@@ -53,6 +55,39 @@ const InstructionModal = ({ setIsModalVisible }) => {
                 </h5>
               </div>
             </div>
+            )}
+
+            {variant === "paypangea" && (
+            <div className="gittu-modal-body">
+              <div className="mb-20">
+                <h5 className="ff-outfit fw-600 text-white">
+                  Instructions for Token Buyers using credit card or wire transfer.
+                </h5>
+              </div>
+              <div className="mb-20">
+                <h5 className="ff-outfit fw-600 text-white">
+                  1. Select the amount.
+                </h5>
+              </div>
+              {/* <div className="mb-20">
+                <h5 className="ff-outfit fw-600 text-white">
+                  2. Ensure your wallet has sufficient $ETH for gas fees.
+                </h5>
+              </div>
+              <div className="mb-20">
+                <h5 className="ff-outfit fw-600 text-white">
+                  3. Approve $USDT and $USDC transfers from your wallet to the
+                  smart contract before purchasing $BATR. Approval needs a gas
+                  fee.
+                </h5>
+              </div> */}
+              <div>
+                <h5 className="ff-outfit fw-600 text-white">
+                  2. Follow instructions on screen.
+                </h5>
+              </div>
+            </div>
+            )}
           </div>
         </div>
       </div>
