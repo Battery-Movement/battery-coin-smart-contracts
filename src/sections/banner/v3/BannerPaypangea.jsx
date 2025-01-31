@@ -7,7 +7,7 @@ import BannerData from "../../../assets/data/bannerV3";
 import { usePresaleData } from "../../../utils/PresaleContext";
 import * as configModule1 from "../../../contracts/config";
 
-const Banner = () => {
+const BannerPaypangea = () => {
   const {
     currentStage,
     stageEnd,
@@ -72,4 +72,4 @@ const Banner = () => {
   );
 };
 
-export default Banner;
+export default BannerPaypangea;

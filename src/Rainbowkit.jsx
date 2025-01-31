@@ -78,7 +78,7 @@ const Rainbowkit = ({ children }) => {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
-          initialChain={mainnet}
+          initialChain={sepolia}
           modalSize="compact" //wide,compact
           theme={darkTheme({
             accentColor: "rgba(255, 255, 255, 0.2)",

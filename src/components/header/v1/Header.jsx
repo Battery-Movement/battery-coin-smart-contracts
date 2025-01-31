@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PropTypes from "prop-types"; 
+import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 import HeaderWrapper from "./Header.style";
 import ConnectWalletButton from "../../connectWalletButton/ConnectWalletButton";
@@ -8,7 +8,7 @@ import InstructionButton from "../../instructionButton/InstructionButton";
 
 const Header = ({ variant }) => {
   const [logoImg, setLogoImg] = useState(Logo);
-
+  console.log(variant);
   return (
     <>
       <HeaderWrapper className="header-section">
@@ -28,22 +28,22 @@ const Header = ({ variant }) => {
               </NavLink>
             </div>
             {variant === "v2" && (
-            <div className="gittu-header-right">
-              <div className="gittu-header-menu-toggle"></div>
-              <div className="gittu-header-right-menu">
-                <ConnectWalletButton variant="blue" />
+              <div className="gittu-header-right">
+                <div className="gittu-header-menu-toggle"></div>
+                <div className="gittu-header-right-menu">
+                  <ConnectWalletButton variant="blue" />
+                </div>
+                <div className="gittu-header-right-menu">
+                  <InstructionButton variant={variant} />
+                </div>
               </div>
-              <div className="gittu-header-right-menu">
-                <InstructionButton variant={variant} />
-              </div>
-            </div>
             )}
             {variant === "paypangea" && (
-            <div className="gittu-header-right">
-              <div className="gittu-header-right-menu">
-                <InstructionButton variant={variant} />
+              <div className="gittu-header-right">
+                <div className="gittu-header-right-menu">
+                  <InstructionButton variant={variant} />
+                </div>
               </div>
-            </div>
             )}
           </div>
         </div>
@@ -53,7 +53,7 @@ const Header = ({ variant }) => {
 };
 
 Header.propTypes = {
-  variant: PropTypes.string, 
+  variant: PropTypes.string,
 };
 
 export default Header;

@@ -7,7 +7,7 @@ import IconETH from "../../assets/images/token/ETH.jpg";
 import Icon1 from "../../assets/images/token/USDT.jpg";
 import Icon2 from "../../assets/images/token/USDC.jpg";
 
-const PayWith = ({ variant }) => {
+const PayWithPaypangea = ({ variant }) => {
   const {
     stageEnd,
     currentPrice,
@@ -33,33 +33,34 @@ const PayWith = ({ variant }) => {
   const buttonText = isPresalePaused ? "Presale Paused" : "Buy Battery Coin";
 
   const loadPayPangea = async () => {
-      return new Promise((resolve, reject) => {
-        // Check if the PayPangea object is already available
+    return new Promise((resolve, reject) => {
+      // Check if the PayPangea object is already available
+      if (typeof PayPangea !== "undefined") {
+        resolve(PayPangea);
+        return;
+      }
+
+      // Dynamically load the script
+      const script = document.createElement("script");
+      script.id = "paypangea-sdk";
+      script.src = "https://sdk.paypangea.com/sdk.js?ver=4"; // Load PayPangea SDK
+      script.async = true;
+
+      script.onload = () => {
         if (typeof PayPangea !== "undefined") {
           resolve(PayPangea);
-          return;
+        } else {
+          reject(new Error("PayPangea SDK failed to initialize."));
         }
-    
-        // Dynamically load the script
-        const script = document.createElement("script");
-        script.id = "paypangea-sdk";
-        script.src = "https://sdk.paypangea.com/sdk.js?ver=4"; // Load PayPangea SDK
-        script.async = true;
-    
-        script.onload = () => {
-          if (typeof PayPangea !== "undefined") {
-            resolve(PayPangea);
-          } else {
-            reject(new Error("PayPangea SDK failed to initialize."));
-          }
-        };
-    
-        script.onerror = () => reject(new Error("Failed to load PayPangea SDK script."));
-    
-        document.body.appendChild(script);
-      });
+      };
+
+      script.onerror = () =>
+        reject(new Error("Failed to load PayPangea SDK script."));
+
+      document.body.appendChild(script);
+    });
   };
-  
+
   const buyTokenWithPaypangea = async () => {
     try {
       // Load and initialize PayPangea
@@ -67,8 +68,8 @@ const PayWith = ({ variant }) => {
 
       // Initialize PayPangea with your merchant key
       const payPangeaInstance = new PayPangea({
-        apiKey: 'ADD-YOUR-KEY',
-        environment: 'STAGING',
+        apiKey: "18215897-KlurDUUP-J1PdOyMJ-BgByRRtD",
+        environment: "STAGING",
       });
 
       // Add event handlers
@@ -83,35 +84,39 @@ const PayWith = ({ variant }) => {
       payPangeaInstance.on("cancel", () => {
         console.log("Payment cancelled.");
       });
-  
+
       // Create a payment request
       payPangeaInstance.initContractCallFIAT({
         amount: paymentAmount, // The payment amount
         token: "USDC",
         currency: "USD", // Replace with your preferred currency
-        contractaddress: '0x95c53A43AD220ADd8882B9197DE99a4732050f18',
+        contractaddress: "0x95c53A43AD220ADd8882B9197DE99a4732050f18",
         chain: "sepolia",
-        contractfunction: 'reserve',
-        contractabi: JSON.stringify({ 
+        contractfunction: "reserve",
+        contractabi: JSON.stringify({
           inputs: [
             { internalType: "uint256", name: "_amount", type: "uint256" },
-            { internalType: "address", name: "_token", type: "address" }
+            { internalType: "address", name: "_token", type: "address" },
           ],
           name: "reserve",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function"
+          type: "function",
         }),
-        contractargs: JSON.stringify([paymentAmount, "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8"]),
-        text: `Purchase ${buyAmount} BATR tokens`
+        contractargs: JSON.stringify([
+          paymentAmount,
+          "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
+        ]),
+        text: `Purchase ${buyAmount} BATR tokens`,
       });
     } catch (error) {
       console.error(error);
       console.error("Error during payment with PayPangea:", error);
-      alert("An error occurred while processing your payment. Please try again.");
+      alert(
+        "An error occurred while processing your payment. Please try again."
+      );
     }
   };
-  
 
   const renderButton = (text) => (
     <button
@@ -125,11 +130,11 @@ const PayWith = ({ variant }) => {
 
   return (
     <PayWithStyleWrapper variant={variant}>
-        <div className="mb-20 text-center">
-          <h4 className="ff-title fw-600 text-white text-uppercase">
-            1 {tokenSymbol} = {currentPrice} USD
-          </h4>
-        </div>
+      <div className="mb-20 text-center">
+        <h4 className="ff-title fw-600 text-white text-uppercase">
+          1 {tokenSymbol} = {currentPrice} USD
+        </h4>
+      </div>
 
       <form action="/" method="post">
         <div className="presale-item mb-30">
@@ -172,4 +177,4 @@ const PayWith = ({ variant }) => {
   );
 };
 
-export default PayWith;
+export default PayWithPaypangea;
