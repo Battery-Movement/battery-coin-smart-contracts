@@ -421,6 +421,56 @@ const PresaleContextProvider = ({ children }) => {
     }
   };
 
+  //handle payment input
+  const handlePaymentInputFiat = (e) => {
+    let _inputValue = e.target.value;
+    let _calcValue = 0;
+
+    _calcValue = _inputValue / currentPrice;
+
+    setPaymentAmount(_inputValue);
+    setBuyAmount(_calcValue);
+    setTotalAmount(_inputValue);
+
+    if (_inputValue == "") {
+      setPresaleStatus(null);
+      setTotalAmount(0);
+    } else {
+      if (_inputValue > 0) {
+        setPresaleStatus(null);
+      } else {
+        setHashValue(null);
+        setPresaleStatus("Please buy at least 1 token!");
+        setTotalAmount(0);
+      }
+    }
+  };
+
+  //handle payment input
+  const handleBATRTokenInputFiat = (e) => {
+    let _inputValue = e.target.value;
+    let _calcValue = 0;
+
+    _calcValue = _inputValue * currentPrice;
+
+    setPaymentAmount(_calcValue);
+    setBuyAmount(_inputValue);
+    setTotalAmount(_calcValue);
+
+    if (_inputValue == "") {
+      setPresaleStatus(null);
+      setTotalAmount(0);
+    } else {
+      if (_inputValue > 0) {
+        setPresaleStatus(null);
+      } else {
+        setHashValue(null);
+        setPresaleStatus("Please buy at least 1 token!");
+        setTotalAmount(0);
+      }
+    }
+  };
+
   // buy token
   const amountUSDToPay = new BigNumber(
     paymentAmount * 10 ** configModule.usdtDecimal
@@ -547,6 +597,8 @@ const PresaleContextProvider = ({ children }) => {
         makeEmptyInputs,
         handlePaymentInput,
         handleBATRTokenInput,
+        handlePaymentInputFiat,
+        handleBATRTokenInputFiat,
         buyToken,
         buyTokenWithETH,
         buyTokenData,
