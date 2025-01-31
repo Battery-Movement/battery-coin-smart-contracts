@@ -85,13 +85,37 @@ const PayWithPaypangea = ({ variant }) => {
         console.log("Payment cancelled.");
       });
 
-      // Create a payment request
+      // Create a payment request - ** TEST **
+      // payPangeaInstance.initContractCallFIAT({
+      //   amount: paymentAmount, // The payment amount
+      //   token: "USDC",
+      //   currency: "USD", // Replace with your preferred currency
+      //   contractaddress: "0x95c53A43AD220ADd8882B9197DE99a4732050f18",
+      //   chain: "sepolia",
+      //   contractfunction: "reserve",
+      //   contractabi: JSON.stringify({
+      //     inputs: [
+      //       { internalType: "uint256", name: "_amount", type: "uint256" },
+      //       { internalType: "address", name: "_token", type: "address" },
+      //     ],
+      //     name: "reserve",
+      //     outputs: [],
+      //     stateMutability: "nonpayable",
+      //     type: "function",
+      //   }),
+      //   contractargs: JSON.stringify([
+      //     paymentAmount,
+      //     "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
+      //   ]),
+      //   text: `Purchase ${buyAmount} BATR tokens`,
+      // });
+
       payPangeaInstance.initContractCallFIAT({
         amount: paymentAmount, // The payment amount
         token: "USDC",
         currency: "USD", // Replace with your preferred currency
-        contractaddress: "0x95c53A43AD220ADd8882B9197DE99a4732050f18",
-        chain: "sepolia",
+        contractaddress: "0x03e830b71b728C12e066441b9d38efa610800BeF",
+        chain: "mainnet",
         contractfunction: "reserve",
         contractabi: JSON.stringify({
           inputs: [
@@ -105,7 +129,7 @@ const PayWithPaypangea = ({ variant }) => {
         }),
         contractargs: JSON.stringify([
           paymentAmount,
-          "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
+          "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         ]),
         text: `Purchase ${buyAmount} BATR tokens`,
       });
