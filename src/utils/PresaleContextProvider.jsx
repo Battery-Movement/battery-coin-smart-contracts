@@ -226,7 +226,7 @@ const PresaleContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (balanceData) {
-      let tmp = parseFloat(balanceData?.formatted).toFixed(2);
+      let tmp = parseFloat(balanceData?.formatted).toFixed(4);
       setUserBalance(`${tmp} ${balanceData?.symbol}`);
     }
 
