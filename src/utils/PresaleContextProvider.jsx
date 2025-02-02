@@ -574,6 +574,97 @@ const PresaleContextProvider = ({ children }) => {
     }, 3000);
   };
 
+  const loadPayPangea = async () => {
+    return new Promise((resolve, reject) => {
+      // Check if the PayPangea object is already available
+      if (typeof PayPangea !== "undefined") {
+        resolve(PayPangea);
+        return;
+      }
+
+      // Dynamically load the script
+      const script = document.createElement("script");
+      script.id = "paypangea-sdk";
+      script.src = "https://sdk.paypangea.com/sdk.js?ver=4"; // Load PayPangea SDK
+      script.async = true;
+
+      script.onload = () => {
+        if (typeof PayPangea !== "undefined") {
+          resolve(PayPangea);
+        } else {
+          reject(new Error("PayPangea SDK failed to initialize."));
+        }
+      };
+
+      script.onerror = () =>
+        reject(new Error("Failed to load PayPangea SDK script."));
+
+      document.body.appendChild(script);
+    });
+  };
+
+  const buyTokenWithPaypangea = async () => {
+    if (paymentAmount != "") {
+      try {
+        // Load and initialize PayPangea
+        const PayPangea = await loadPayPangea();
+
+        // Initialize PayPangea with your merchant key
+        const payPangeaInstance = new PayPangea({
+          apiKey: "18215897-KlurDUUP-J1PdOyMJ-BgByRRtD",
+          environment: "STAGING",
+        });
+
+        // Add event handlers
+        payPangeaInstance.on("success", () => {
+          console.log("Payment successful!");
+        });
+
+        payPangeaInstance.on("error", (error) => {
+          console.error("Payment error:", error);
+        });
+
+        payPangeaInstance.on("cancel", () => {
+          console.log("Payment cancelled.");
+        });
+
+        // Create a payment request
+        payPangeaInstance.initContractCallFIAT({
+          amount: paymentAmount, // The payment amount
+          token: "USDC",
+          currency: "USD", // Replace with your preferred currency
+          contractaddress: "0x03e830b71b728C12e066441b9d38efa610800BeF",
+          chain: "mainnet",
+          contractfunction: "reserve",
+          contractabi: JSON.stringify({
+            inputs: [
+              { internalType: "uint256", name: "_amount", type: "uint256" },
+              { internalType: "address", name: "_token", type: "address" },
+            ],
+            name: "reserve",
+            outputs: [],
+            stateMutability: "nonpayable",
+            type: "function",
+          }),
+          contractargs: JSON.stringify([
+            paymentAmount,
+            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          ]),
+          text: `Purchase ${buyAmount} BATR tokens`,
+        });
+      } catch (error) {
+        console.error(error);
+        console.error("Error during payment with PayPangea:", error);
+        alert(
+          "An error occurred while processing your payment. Please try again."
+        );
+      }
+    } else {
+      setHashValue(null);
+      setPresaleStatus("Please enter pay amount!");
+    }
+  };
+
   return (
     <PresaleContext.Provider
       value={{
@@ -602,6 +693,7 @@ const PresaleContextProvider = ({ children }) => {
         buyToken,
         buyTokenWithETH,
         buyTokenData,
+        buyTokenWithPaypangea,
         buyTokenIsLoading,
         buyTokenIsSuccess,
         buyTokenError,

@@ -85,6 +85,70 @@ const HeaderWrapper = styled.div`
     }
   }
 
+  .toggle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .toggle-button {
+    position: relative;
+    width: 150px;
+    height: 50px;
+    background: #ffffff33;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    background: white;
+    border-radius: 25px;
+    transition: transform 0.3s ease-in-out;
+    box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .toggle-slider.left {
+    transform: translateX(0%);
+  }
+
+  .toggle-slider.right {
+    transform: translateX(100%);
+  }
+
+  .toggle-icons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 10px;
+    align-items: center;
+    position: absolute;
+    z-index: 1;
+  }
+
+  .bitcoin-icon {
+    width: 30px;
+    height: 30px;
+    margin-left: 12px;
+  }
+
+  .visa-icon {
+    width: 50px;
+    height: 30px;
+  }
+
+  .toggle-text {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
   @media screen and (max-width: 991px) {
     .gittu-header-menu-toggle {
       display: block;
