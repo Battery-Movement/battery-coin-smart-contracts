@@ -7,7 +7,7 @@ import BannerData from "../../../assets/data/bannerV3";
 import { usePresaleData } from "../../../utils/PresaleContext";
 import * as configModule1 from "../../../contracts/config";
 
-const Banner = () => {
+const Banner = ({ isPayPangea }) => {
   const {
     currentStage,
     stageEnd,
@@ -17,6 +17,7 @@ const Banner = () => {
     getHashValuesByAddress,
     pauseStatus,
   } = usePresaleData();
+
   const [configModule, setConfigModule] = useState(configModule1);
 
   return (
@@ -64,105 +65,108 @@ const Banner = () => {
               <Progressbar done={tokenPercent} variant="dashed3" />
             </div>
 
-            <PayWith variant="v1" />
+            <PayWith variant="v1" isPayPangea={isPayPangea} />
           </div>
-          {Array.isArray(getHashValuesByAddress) ? (
-            <div className="col-lg-4">
-              <div
-                className="row justify-content-center"
-                style={{ maxHeight: "508px", overflowY: "auto" }}
-              >
-                {getHashValuesByAddress.map((item, index) => {
-                  const isUSDT = item.tokenSymbol === configModule.usdtAddress;
-                  const isUSDC = item.tokenSymbol === configModule.usdcAddress;
-                  const tokenImage = isUSDT
-                    ? "https://cryptologos.cc/logos/tether-usdt-logo.png"
-                    : isUSDC
-                    ? "https://cryptologos.cc/logos/usd-coin-usdc-logo.png"
-                    : "https://cryptologos.cc/logos/ethereum-eth-logo.png";
-                  const tokenAlt = isUSDT
-                    ? "USDT Icon"
-                    : isUSDC
-                    ? "USDC Icon"
-                    : "ETH Icon";
-                  const tokenDecimal = isUSDT
-                    ? configModule.usdtDecimal
-                    : isUSDC
-                    ? configModule.usdcDecimal
-                    : configModule.ethDecimal;
-                  const tokenCurrency = isUSDT
-                    ? "USDT"
-                    : isUSDC
-                    ? "USDC"
-                    : "ETH";
+          {!isPayPangea &&
+            (Array.isArray(getHashValuesByAddress) ? (
+              <div className="col-lg-4">
+                <div
+                  className="row justify-content-center"
+                  style={{ maxHeight: "508px", overflowY: "auto" }}
+                >
+                  {getHashValuesByAddress.map((item, index) => {
+                    const isUSDT =
+                      item.tokenSymbol === configModule.usdtAddress;
+                    const isUSDC =
+                      item.tokenSymbol === configModule.usdcAddress;
+                    const tokenImage = isUSDT
+                      ? "https://cryptologos.cc/logos/tether-usdt-logo.png"
+                      : isUSDC
+                      ? "https://cryptologos.cc/logos/usd-coin-usdc-logo.png"
+                      : "https://cryptologos.cc/logos/ethereum-eth-logo.png";
+                    const tokenAlt = isUSDT
+                      ? "USDT Icon"
+                      : isUSDC
+                      ? "USDC Icon"
+                      : "ETH Icon";
+                    const tokenDecimal = isUSDT
+                      ? configModule.usdtDecimal
+                      : isUSDC
+                      ? configModule.usdcDecimal
+                      : configModule.ethDecimal;
+                    const tokenCurrency = isUSDT
+                      ? "USDT"
+                      : isUSDC
+                      ? "USDC"
+                      : "ETH";
 
-                  return (
-                    <div key={index} className="col-md-12">
-                      <div
-                        className="token-details mb-3"
-                        style={{
-                          border: "1px solid #444",
-                          borderRadius: "12px",
-                          padding: "15px",
-                          backgroundColor: "#00000099",
-                          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.7)",
-                        }}
-                      >
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={tokenImage}
-                            alt={tokenAlt}
-                            className="token-icon me-3"
-                            style={{ width: "40px", height: "40px" }}
-                          />
-                          <div
-                            className="token-info"
-                            style={{ color: "#ffffff" }}
-                          >
-                            <p className="mb-1">
-                              <strong>Reserve Date:</strong>{" "}
-                              {new Date(
-                                Number(item.reserveDate) * 1000
-                              ).toLocaleString(undefined, {
-                                dateStyle: "medium",
-                                timeStyle: "short",
-                              })}
-                            </p>
-                            <p className="mb-1">
-                              <strong>Round Number:</strong>{" "}
-                              {parseFloat(item.roundNo) + 1}
-                            </p>
-                            <p className="mb-1">
-                              <strong>BATR Token Price:</strong> $
-                              {parseFloat(item.tokenPrice) / 100}
-                            </p>
-                            <p className="mb-1">
-                              <strong>Total BATR Amount:</strong>{" "}
-                              {parseFloat(item.totalBATRAmount) /
-                                Math.pow(10, configModule.battDecimal)}
-                            </p>
-                            {/* <p className="mb-1">
+                    return (
+                      <div key={index} className="col-md-12">
+                        <div
+                          className="token-details mb-3"
+                          style={{
+                            border: "1px solid #444",
+                            borderRadius: "12px",
+                            padding: "15px",
+                            backgroundColor: "#00000099",
+                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.7)",
+                          }}
+                        >
+                          <div className="d-flex align-items-center">
+                            <img
+                              src={tokenImage}
+                              alt={tokenAlt}
+                              className="token-icon me-3"
+                              style={{ width: "40px", height: "40px" }}
+                            />
+                            <div
+                              className="token-info"
+                              style={{ color: "#ffffff" }}
+                            >
+                              <p className="mb-1">
+                                <strong>Reserve Date:</strong>{" "}
+                                {new Date(
+                                  Number(item.reserveDate) * 1000
+                                ).toLocaleString(undefined, {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                })}
+                              </p>
+                              <p className="mb-1">
+                                <strong>Round Number:</strong>{" "}
+                                {parseFloat(item.roundNo) + 1}
+                              </p>
+                              <p className="mb-1">
+                                <strong>BATR Token Price:</strong> $
+                                {parseFloat(item.tokenPrice) / 100}
+                              </p>
+                              <p className="mb-1">
+                                <strong>Total BATR Amount:</strong>{" "}
+                                {parseFloat(item.totalBATRAmount) /
+                                  Math.pow(10, configModule.battDecimal)}
+                              </p>
+                              {/* <p className="mb-1">
                               <strong>Remain BATR Amount:</strong>{" "}
                               {parseFloat(item.releasedBATRAmount) /
                                 Math.pow(10, configModule.battDecimal)}
                             </p> */}
-                            <p className="mb-0">
-                              <strong>Total Paid Amount:</strong>{" "}
-                              {parseFloat(item.totalPaidAmount) /
-                                Math.pow(10, tokenDecimal)}{" "}
-                              {tokenCurrency}
-                            </p>
+                              <p className="mb-0">
+                                <strong>Total Paid Amount:</strong>{" "}
+                                {parseFloat(item.totalPaidAmount) /
+                                  Math.pow(10, tokenDecimal)}{" "}
+                                {tokenCurrency}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ) : (
-            <></>
-          )}
+            ) : (
+              <></>
+            ))}
         </div>
       </div>
     </BannerWrapper>

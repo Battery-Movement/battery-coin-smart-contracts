@@ -1,5 +1,4 @@
 import InstructionButtonWrapper from "./InstructionButton.style";
-import PropTypes from "prop-types"; 
 import { FaCircleQuestion } from "react-icons/fa6";
 import InstructionModal from "./InstructionModal";
 import { useState } from "react";
@@ -17,14 +16,10 @@ const InstructionButton = ({ variant }) => {
         <FaCircleQuestion style={{ fontSize: 24 }} />
       </button>
       {isModalVisible && (
-        <InstructionModal setIsModalVisible={setIsModalVisible} variant={variant} />
+        <InstructionModal setIsModalVisible={setIsModalVisible} />
       )}
     </InstructionButtonWrapper>
   );
-};
-
-InstructionButton.propTypes = {
-  variant: PropTypes.string, 
 };
 
 export default InstructionButton;

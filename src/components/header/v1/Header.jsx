@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
-import PropTypes from "prop-types";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import HeaderWrapper from "./Header.style";
 import ConnectWalletButton from "../../connectWalletButton/ConnectWalletButton";
 import Logo from "../../../assets/images/logo-3.png";
 import InstructionButton from "../../instructionButton/InstructionButton";
 
-const Header = ({ variant }) => {
+const Header = ({ isPayPangea, setIsPayPangea }) => {
   const [logoImg, setLogoImg] = useState(Logo);
-  console.log(variant);
+
   return (
     <>
       <HeaderWrapper className="header-section">
@@ -27,33 +26,49 @@ const Header = ({ variant }) => {
                 />
               </NavLink>
             </div>
-            {variant === "v2" && (
-              <div className="gittu-header-right">
-                <div className="gittu-header-menu-toggle"></div>
+            <div className="gittu-header-right">
+              <div className="gittu-header-menu-toggle"></div>
+              {!isPayPangea && (
                 <div className="gittu-header-right-menu">
                   <ConnectWalletButton variant="blue" />
                 </div>
-                <div className="gittu-header-right-menu">
-                  <InstructionButton variant={variant} />
+              )}
+              <div className="gittu-header-right-menu toggle-container">
+                <div
+                  className="toggle-button"
+                  onClick={() => setIsPayPangea(!isPayPangea)}
+                >
+                  {/* Sliding Button */}
+                  <div
+                    className={`toggle-slider ${
+                      isPayPangea ? "right" : "left"
+                    }`}
+                  ></div>
+
+                  {/* Bitcoin & Visa Icons */}
+                  <div className="toggle-icons">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/200px-Bitcoin.svg.png"
+                      alt="Bitcoin"
+                      className="bitcoin-icon"
+                    />
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Visa.svg/200px-Visa.svg.png"
+                      alt="Visa"
+                      className="visa-icon"
+                    />
+                  </div>
                 </div>
               </div>
-            )}
-            {variant === "paypangea" && (
-              <div className="gittu-header-right">
-                <div className="gittu-header-right-menu">
-                  <InstructionButton variant={variant} />
-                </div>
+              <div className="gittu-header-right-menu">
+                <InstructionButton variant="blue" />
               </div>
-            )}
+            </div>
           </div>
         </div>
       </HeaderWrapper>
     </>
   );
-};
-
-Header.propTypes = {
-  variant: PropTypes.string,
 };
 
 export default Header;
