@@ -7,7 +7,7 @@ import BannerData from "../../../assets/data/bannerV3";
 import { usePresaleData } from "../../../utils/PresaleContext";
 import * as configModule1 from "../../../contracts/config";
 
-const Banner = ({ isPayPangea }) => {
+const Banner = () => {
   const {
     currentStage,
     stageEnd,
@@ -16,6 +16,8 @@ const Banner = ({ isPayPangea }) => {
     tokenPercent,
     getHashValuesByAddress,
     pauseStatus,
+    userBATRBalance,
+    isPayPangea,
   } = usePresaleData();
 
   const [configModule, setConfigModule] = useState(configModule1);
@@ -39,6 +41,7 @@ const Banner = ({ isPayPangea }) => {
                 {BannerData.title3}
               </h1> */}
               <h5 className="ff-outfit text-white">{BannerData.subtitle}</h5>
+              <h4>Your BATR balance : {userBATRBalance}</h4>
             </div>
           </div>
         </div>
