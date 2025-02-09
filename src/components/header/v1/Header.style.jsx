@@ -93,7 +93,7 @@ const HeaderWrapper = styled.div`
 
   .toggle-button {
     position: relative;
-    width: 150px;
+    width: 120px;
     height: 50px;
     background: #ffffff33;
     border-radius: 25px;
@@ -135,12 +135,13 @@ const HeaderWrapper = styled.div`
   .bitcoin-icon {
     width: 30px;
     height: 30px;
-    margin-left: 12px;
+    margin-left: 5px;
   }
 
   .visa-icon {
-    width: 50px;
+    width: 30px;
     height: 30px;
+    margin-right: 5px;
   }
 
   .toggle-text {

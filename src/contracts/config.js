@@ -1,7 +1,7 @@
 // ---- For Mainnet ----
 import PresaleContractAbi from "./BatteryCoinPresaleAbi.json";
-import USDT_ABI from "../contracts/USDT_ABI.json";
-import USDC_ABI from "../contracts/USDC_ABI.json";
+import USDT_ABI from "./USDT_ABI.json";
+import USDC_ABI from "./USDC_ABI.json";
 
 //network link
 // export const networkLink = "https://etherscan.io/tx";
@@ -16,6 +16,7 @@ const contractChainId = 1;
 // TODO: USDT & USDC address on Ethereum network
 export const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 export const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+export const batrAddress = "0x7ae1ced8fc0ef32828ee12522029b8f3f38b9b2c";
 
 // // ---- FOR TEST ----
 // import PresaleContractAbi from "./BatteryCoinPresaleAbi_test.json";
@@ -43,6 +44,8 @@ export const battDecimal = 18;
 
 //payment with (eg. ETH, BNB, MATIC etc.)
 export const payWith = "ETH";
+
+export const secretKey = "BATT_STORE_API_KEY_0001";
 
 //token Presale contract configuration
 export const presaleContractConfig = {

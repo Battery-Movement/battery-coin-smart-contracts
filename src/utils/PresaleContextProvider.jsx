@@ -6,13 +6,13 @@ import {
   useBalance,
   useReadContract,
   useWriteContract,
-  useWaitForTransactionReceipt,
   useBlockNumber,
 } from "wagmi";
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
 import EthIcon from "../assets/images/token/eth.png";
 import Notification from "../components/notification/Notification";
+import PresaleContractAbi from "../contracts/BatteryCoinPresaleAbi.json";
 
 const PresaleContextProvider = ({ children }) => {
   const BLOCK_INDEXING_COUNT = 3;
@@ -22,6 +22,8 @@ const PresaleContextProvider = ({ children }) => {
   const { address: addressData, isConnected } = useAccount();
 
   const [userBalance, setUserBalance] = useState("0");
+  const [userBATRBalance, setUserBATRBalance] = useState("0.00");
+  const [userWalletAddress, setUserWalletAddress] = useState("");
   const [currentStage, setCurrentStage] = useState(0);
   const [currentPrice, setCurrentPrice] = useState("");
   const [stageEnd, setStageEnd] = useState(1729066440);
@@ -38,6 +40,7 @@ const PresaleContextProvider = ({ children }) => {
   const [isInit, setIsInit] = useState(false);
   const [hashValue, setHashValue] = useState(null);
   const [ethPrice, setETHPrice] = useState(0);
+  const [isPayPangea, setIsPayPangea] = useState(false);
 
   // buy token notification
   const [isActiveNotification, setIsActiveNotification] = useState(false);
@@ -127,6 +130,77 @@ const PresaleContextProvider = ({ children }) => {
     });
     balanceData = data;
   }
+
+  const { data: userWalletData, error: balanceError } = useBalance({
+    address: userWalletAddress,
+    token: configModule.batrAddress,
+    enabled: userWalletAddress !== "",
+  });
+
+  useEffect(() => {
+    if (userWalletData) {
+      let tmp = parseFloat(userWalletData?.formatted).toFixed(2);
+      setUserBATRBalance(`${tmp} ${userWalletData?.symbol}`);
+    }
+
+    if (balanceError) {
+      console.error("Error fetching user balance:", balanceError);
+    }
+  }, [userWalletData, balanceError, userWalletAddress]);
+
+  // TODO: get user email address from user ID
+  const getEmailAddressFromUserID = () => {
+    const url = new URL(window.location.href);
+    const userID = url.searchParams.get("userID");
+    console.log({ userID });
+    let email = "";
+    fetch(
+      "https://store.batterycoin.org/wp-json/userlookup/v1/email/" + userID,
+      {
+        method: "GET",
+        headers: {
+          "X-Secret-Key": configModule.secretKey,
+        },
+      }
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.email) {
+          console.log("Email found:", data.email);
+          email = data.mail;
+        } else {
+          console.log("Error:", data.message || "No email found");
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "There has been a problem with your fetch operation:",
+          error
+        );
+      });
+
+    return email;
+  };
+
+  useEffect(() => {
+    if (isPayPangea) {
+      let email = getEmailAddressFromUserID();
+      if (email !== "") {
+        getPayPangeaWalletAddress(email);
+      }
+    } else {
+      if (isConnected) {
+        setUserWalletAddress(addressData);
+      } else {
+        setUserWalletAddress("");
+      }
+    }
+  }, [isPayPangea, isConnected]);
 
   useEffect(() => {
     if (
@@ -612,7 +686,7 @@ const PresaleContextProvider = ({ children }) => {
         // Initialize PayPangea with your merchant key
         const payPangeaInstance = new PayPangea({
           apiKey: "18215897-KlurDUUP-J1PdOyMJ-BgByRRtD",
-          environment: "STAGING",
+          environment: "PRODUCTION",
         });
 
         // Add event handlers
@@ -636,16 +710,7 @@ const PresaleContextProvider = ({ children }) => {
           contractaddress: "0x03e830b71b728C12e066441b9d38efa610800BeF",
           chain: "mainnet",
           contractfunction: "reserve",
-          contractabi: JSON.stringify({
-            inputs: [
-              { internalType: "uint256", name: "_amount", type: "uint256" },
-              { internalType: "address", name: "_token", type: "address" },
-            ],
-            name: "reserve",
-            outputs: [],
-            stateMutability: "nonpayable",
-            type: "function",
-          }),
+          contractabi: PresaleContractAbi,
           contractargs: JSON.stringify([
             paymentAmount,
             "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -663,6 +728,34 @@ const PresaleContextProvider = ({ children }) => {
       setHashValue(null);
       setPresaleStatus("Please enter pay amount!");
     }
+  };
+
+  const getPayPangeaWalletAddress = (email) => {
+    const data = {
+      email: email,
+    };
+    fetch("https://api.paypangea.com/v1/auth/request-wallet", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer 18215897-KlurDUUP-J1PdOyMJ-BgByRRtD",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to submit reservation data");
+        }
+        return response.json();
+      })
+      .then((result) => {
+        if (result && result["wallet"]) {
+          setUserWalletAddress(result["wallet"]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error submitting reservation data:", error);
+      });
   };
 
   return (
@@ -708,6 +801,9 @@ const PresaleContextProvider = ({ children }) => {
         getHashValuesByAddress,
         pauseStatus,
         isEnableBuy,
+        userBATRBalance,
+        isPayPangea,
+        setIsPayPangea,
       }}
     >
       {children}

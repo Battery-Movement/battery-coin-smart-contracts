@@ -3,10 +3,16 @@ import { NavLink } from "react-router-dom";
 import HeaderWrapper from "./Header.style";
 import ConnectWalletButton from "../../connectWalletButton/ConnectWalletButton";
 import Logo from "../../../assets/images/logo-3.png";
+import Ethereum from "../../../assets/images/ethereum.png";
+import Debit from "../../../assets/images/debit.png";
 import InstructionButton from "../../instructionButton/InstructionButton";
+import { usePresaleData } from "../../../utils/PresaleContext";
 
-const Header = ({ isPayPangea, setIsPayPangea }) => {
+const Header = () => {
+  const { isPayPangea, setIsPayPangea } = usePresaleData();
   const [logoImg, setLogoImg] = useState(Logo);
+  const [ethImg, setETHImg] = useState(Ethereum);
+  const [debitImg, setDebitImg] = useState(Debit);
 
   return (
     <>
@@ -45,18 +51,9 @@ const Header = ({ isPayPangea, setIsPayPangea }) => {
                     }`}
                   ></div>
 
-                  {/* Bitcoin & Visa Icons */}
                   <div className="toggle-icons">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/200px-Bitcoin.svg.png"
-                      alt="Bitcoin"
-                      className="bitcoin-icon"
-                    />
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Visa.svg/200px-Visa.svg.png"
-                      alt="Visa"
-                      className="visa-icon"
-                    />
+                    <img src={ethImg} alt="Ethereum" className="bitcoin-icon" />
+                    <img src={debitImg} alt="Visa" className="visa-icon" />
                   </div>
                 </div>
               </div>
