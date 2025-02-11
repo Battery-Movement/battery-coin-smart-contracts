@@ -630,13 +630,13 @@ const PresaleContextProvider = ({ children }) => {
 
         // Create a payment request
         payPangeaInstance.initContractCallFIAT({
-          amount: paymentAmount, // The payment amount
-          token: "USDC",
-          currency: "USD", // Replace with your preferred currency
-          contractaddress: "0x03e830b71b728C12e066441b9d38efa610800BeF",
-          chain: "mainnet",
+          amount: 0, // The payment amount, 0 if function is nonpayable
+          token: "USDT", 
+          // currency: "USD", // Replace with your preferred currency
+          contractaddress: "0x95c53A43AD220ADd8882B9197DE99a4732050f18",
+          chain: "sepolia",
           contractfunction: "reserve",
-          contractabi: JSON.stringify({
+          contractabi: JSON.stringify([{
             inputs: [
               { internalType: "uint256", name: "_amount", type: "uint256" },
               { internalType: "address", name: "_token", type: "address" },
@@ -645,12 +645,17 @@ const PresaleContextProvider = ({ children }) => {
             outputs: [],
             stateMutability: "nonpayable",
             type: "function",
-          }),
+          }]),
           contractargs: JSON.stringify([
             paymentAmount,
-            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0",
           ]),
           text: `Purchase ${buyAmount} BATR tokens`,
+          emailonly: true,
+          topup_external: false,
+          fixed_chain: true,
+          amountcurrency: paymentAmount,
+          currency: "USD"
         });
       } catch (error) {
         console.error(error);
