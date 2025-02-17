@@ -631,7 +631,7 @@ const PresaleContextProvider = ({ children }) => {
         // Create a payment request
         payPangeaInstance.initContractCallFIAT({
           amount: 0, // The payment amount, 0 if function is nonpayable
-          token: "USDT", 
+          token: "USDC", 
           // currency: "USD", // Replace with your preferred currency
           contractaddress: "0x95c53A43AD220ADd8882B9197DE99a4732050f18",
           chain: "sepolia",
@@ -647,15 +647,19 @@ const PresaleContextProvider = ({ children }) => {
             type: "function",
           }]),
           contractargs: JSON.stringify([
-            paymentAmount,
-            "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0",
+            (buyAmount * 10 ** 18).toString(),
+            "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
           ]),
           text: `Purchase ${buyAmount} BATR tokens`,
           emailonly: true,
           topup_external: false,
           fixed_chain: true,
+          needs_spending_approval: true,
+          spending_approval_address: "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
+          spending_approval_amount: (paymentAmount * 10 ** 6).toString(),
           amountcurrency: paymentAmount,
-          currency: "USD"
+          currency: "USD",
+          contracttokenaddress: "0xE1b6d67dBd4Cfe38C71DC05edBE664Fd51D0bec2",
         });
       } catch (error) {
         console.error(error);
@@ -664,6 +668,7 @@ const PresaleContextProvider = ({ children }) => {
           "An error occurred while processing your payment. Please try again."
         );
       }
+      
     } else {
       setHashValue(null);
       setPresaleStatus("Please enter pay amount!");
