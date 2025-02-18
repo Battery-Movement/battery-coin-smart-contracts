@@ -1,42 +1,42 @@
 // ---- For Mainnet ----
 import PresaleContractAbi from "./BatteryCoinPresaleAbi.json";
-// import USDT_ABI from "./USDT_ABI.json";
-// import USDC_ABI from "./USDC_ABI.json";
+import USDT_ABI from "./USDT_ABI.json";
+import USDC_ABI from "./USDC_ABI.json";
 
-//network link
+// network link
 // export const networkLink = "https://etherscan.io/tx";
 
-//token presale contract address
-// export const presaleContractAddress =
-//   "0x03e830b71b728C12e066441b9d38efa610800BeF";
+// token presale contract address
+export const presaleContractAddress =
+  "0x03e830b71b728C12e066441b9d38efa610800BeF";
 
-// //contract chainid
-// const contractChainId = 1;
+//contract chainid
+const contractChainId = 1;
 
 // TODO: USDT & USDC address on Ethereum network
-// export const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-// export const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-// export const batrAddress = "0x7ae1ced8fc0ef32828ee12522029b8f3f38b9b2c";
+export const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+export const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+export const batrAddress = "0x7ae1ced8fc0ef32828ee12522029b8f3f38b9b2c";
 
 // // ---- FOR TEST ----
 // import PresaleContractAbi from "./BatteryCoinPresaleAbi_test.json";
-import USDT_ABI from "../contracts/USDT_ABI_test.json";
-import USDC_ABI from "../contracts/USDC_ABI_test.json";
+// import USDT_ABI from "../contracts/USDT_ABI_test.json";
+// import USDC_ABI from "../contracts/USDC_ABI_test.json";
 
-// //network link
-// // export const networkLink = "https://sepolia.etherscan.io/tx";
+// // //network link
+// // // export const networkLink = "https://sepolia.etherscan.io/tx";
 
-// //token presale contract address
-export const presaleContractAddress =
-  "0x95c53A43AD220ADd8882B9197DE99a4732050f18";
+// // //token presale contract address
+// export const presaleContractAddress =
+//   "0x95c53A43AD220ADd8882B9197DE99a4732050f18";
 
-//contract chainid
-const contractChainId = 11155111;
+// //contract chainid
+// const contractChainId = 11155111;
 
-// TODO: USDT & USDC address on Sepolia network
-export const usdtAddress = "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0";
-export const usdcAddress = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8";
-export const batrAddress = "0xE1b6d67dBd4Cfe38C71DC05edBE664Fd51D0bec2";
+// // TODO: USDT & USDC address on Sepolia network
+// export const usdtAddress = "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0";
+// export const usdcAddress = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8";
+// export const batrAddress = "0xE1b6d67dBd4Cfe38C71DC05edBE664Fd51D0bec2";
 
 export const usdtDecimal = 6;
 export const usdcDecimal = 6;
