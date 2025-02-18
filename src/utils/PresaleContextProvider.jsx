@@ -138,6 +138,9 @@ const PresaleContextProvider = ({ children }) => {
   });
 
   useEffect(() => {
+    // console.log({ userWalletData });
+    // console.log({ balanceError });
+    // console.log({ userWalletAddress });
     if (userWalletData) {
       let tmp = parseFloat(userWalletData?.formatted).toFixed(2);
       setUserBATRBalance(`${tmp} ${userWalletData?.symbol}`);
@@ -146,51 +149,50 @@ const PresaleContextProvider = ({ children }) => {
     if (balanceError) {
       console.error("Error fetching user balance:", balanceError);
     }
-  }, [userWalletData, balanceError, userWalletAddress]);
+  }, [userWalletData, balanceError]);
 
   // TODO: get user email address from user ID
-  const getEmailAddressFromUserID = () => {
+  const getEmailAddressFromUserID = async () => {
     const url = new URL(window.location.href);
     const userID = url.searchParams.get("userID");
-    console.log({ userID });
-    let email = "victorcastro9218@gmail.com";
-    // let email = "";
-    // fetch(
-    //   "https://store.batterycoin.org/wp-json/userlookup/v1/email/" + userID,
-    //   {
-    //     method: "GET",
-    //     headers: {
-    //       "X-Secret-Key": configModule.secretKey,
-    //     },
-    //   }
-    // )
-    //   .then((response) => {
-    //     if (!response.ok) {
-    //       throw new Error("Network response was not ok");
-    //     }
-    //     return response.json();
-    //   })
-    //   .then((data) => {
-    //     if (data.email) {
-    //       console.log("Email found:", data.email);
-    //       email = data.mail;
-    //     } else {
-    //       console.log("Error:", data.message || "No email found");
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error(
-    //       "There has been a problem with your fetch operation:",
-    //       error
-    //     );
-    //   });
+    try {
+      const response = await fetch(
+        "https://store.batterycoin.org/wp-json/userlookup/v1/email/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Secret-Key": configModule.secretKey,
+          },
+          body: JSON.stringify({ user_id: Number(userID) }),
+        }
+      );
 
-    return email;
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      if (data.email) {
+        console.log("Email found:", data.email);
+        return data.email;
+      } else {
+        console.log("Error:", data.message || "No email found");
+        return "";
+      }
+    } catch (error) {
+      console.error(
+        "There has been a problem with your fetch operation:",
+        error
+      );
+      return "";
+    }
   };
 
   useEffect(() => {
     if (isPayPangea) {
       let email = getEmailAddressFromUserID();
+      console.log(email);
       if (email !== "") {
         getPayPangeaWalletAddress(email);
       }
@@ -688,7 +690,7 @@ const PresaleContextProvider = ({ children }) => {
         const payPangeaInstance = new PayPangea({
           apiKey: "18215897-KlurDUUP-J1PdOyMJ-BgByRRtD",
           // apiKey: "96639389-wsyCjEq2-RCJj0XrT-PmxrChvt",
-          environment: "STAGING",
+          environment: "PRODUCTION",
         });
 
         // Add event handlers
@@ -710,20 +712,9 @@ const PresaleContextProvider = ({ children }) => {
           token: "USDC",
           currency: "USD", // Replace with your preferred currency
           contractaddress: configModule.presaleContractAddress,
-          chain: "sepolia",
+          chain: "mainnet",
           contractfunction: "reserve",
-          contractabi: JSON.stringify([
-            {
-              inputs: [
-                { internalType: "uint256", name: "_amount", type: "uint256" },
-                { internalType: "address", name: "_token", type: "address" },
-              ],
-              name: "reserve",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-          ]),
+          contractabi: configModule.PresaleContractAbi,
           contractargs: JSON.stringify([
             (buyAmount * 10 ** 18).toString(),
             configModule.usdcAddress,
@@ -739,48 +730,48 @@ const PresaleContextProvider = ({ children }) => {
           contracttokenaddress: configModule.batrAddress,
         });
 
-      //   payPangeaInstance.initContractCallFIAT({
-      //     amount: 0, // The payment amount, 0 if function is nonpayable
-      //     token: "USDC",
-      //     // currency: "USD", // Replace with your preferred currency
-      //     contractaddress: "0x95c53A43AD220ADd8882B9197DE99a4732050f18",
-      //     chain: "sepolia",
-      //     contractfunction: "reserve",
-      //     contractabi: JSON.stringify([
-      //       {
-      //         inputs: [
-      //           { internalType: "uint256", name: "_amount", type: "uint256" },
-      //           { internalType: "address", name: "_token", type: "address" },
-      //         ],
-      //         name: "reserve",
-      //         outputs: [],
-      //         stateMutability: "nonpayable",
-      //         type: "function",
-      //       },
-      //     ]),
-      //     contractargs: JSON.stringify([
-      //       (buyAmount * 10 ** 18).toString(),
-      //       "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
-      //     ]),
-      //     text: `Purchase ${buyAmount} BATR tokens`,
-      //     emailonly: true,
-      //     topup_external: false,
-      //     fixed_chain: true,
-      //     needs_spending_approval: true,
-      //     spending_approval_address:
-      //       "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
-      //     spending_approval_amount: (paymentAmount * 10 ** 6).toString(),
-      //     amountcurrency: paymentAmount,
-      //     currency: "USD",
-      //     contracttokenaddress: "0xE1b6d67dBd4Cfe38C71DC05edBE664Fd51D0bec2",
-      //   });
-      // } catch (error) {
-      //   console.error(error);
-      //   console.error("Error during payment with PayPangea:", error);
-      //   alert(
-      //     "An error occurred while processing your payment. Please try again."
-      //   );
-      // }
+        //   payPangeaInstance.initContractCallFIAT({
+        //     amount: 0, // The payment amount, 0 if function is nonpayable
+        //     token: "USDC",
+        //     // currency: "USD", // Replace with your preferred currency
+        //     contractaddress: "0x95c53A43AD220ADd8882B9197DE99a4732050f18",
+        //     chain: "sepolia",
+        //     contractfunction: "reserve",
+        //     contractabi: JSON.stringify([
+        //       {
+        //         inputs: [
+        //           { internalType: "uint256", name: "_amount", type: "uint256" },
+        //           { internalType: "address", name: "_token", type: "address" },
+        //         ],
+        //         name: "reserve",
+        //         outputs: [],
+        //         stateMutability: "nonpayable",
+        //         type: "function",
+        //       },
+        //     ]),
+        //     contractargs: JSON.stringify([
+        //       (buyAmount * 10 ** 18).toString(),
+        //       "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
+        //     ]),
+        //     text: `Purchase ${buyAmount} BATR tokens`,
+        //     emailonly: true,
+        //     topup_external: false,
+        //     fixed_chain: true,
+        //     needs_spending_approval: true,
+        //     spending_approval_address:
+        //       "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
+        //     spending_approval_amount: (paymentAmount * 10 ** 6).toString(),
+        //     amountcurrency: paymentAmount,
+        //     currency: "USD",
+        //     contracttokenaddress: "0xE1b6d67dBd4Cfe38C71DC05edBE664Fd51D0bec2",
+        //   });
+      } catch (error) {
+        console.error(error);
+        console.error("Error during payment with PayPangea:", error);
+        alert(
+          "An error occurred while processing your payment. Please try again."
+        );
+      }
     } else {
       setHashValue(null);
       setPresaleStatus("Please enter pay amount!");
