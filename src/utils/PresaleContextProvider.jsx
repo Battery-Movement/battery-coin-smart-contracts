@@ -22,7 +22,7 @@ const PresaleContextProvider = ({ children }) => {
   const { address: addressData, isConnected } = useAccount();
 
   const [userBalance, setUserBalance] = useState("0");
-  const [userBATRBalance, setUserBATRBalance] = useState("0.00");
+  const [userBATRBalance, setUserBATRBalance] = useState("0.00 BATR");
   const [userWalletAddress, setUserWalletAddress] = useState("");
   const [currentStage, setCurrentStage] = useState(0);
   const [currentPrice, setCurrentPrice] = useState("");
@@ -138,9 +138,6 @@ const PresaleContextProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    // console.log({ userWalletData });
-    // console.log({ balanceError });
-    // console.log({ userWalletAddress });
     if (userWalletData) {
       let tmp = parseFloat(userWalletData?.formatted).toFixed(2);
       setUserBATRBalance(`${tmp} ${userWalletData?.symbol}`);
@@ -174,7 +171,7 @@ const PresaleContextProvider = ({ children }) => {
 
       const data = await response.json();
       if (data.email) {
-        console.log("Email found:", data.email);
+        // console.log("Email found:", data.email);
         return data.email;
       } else {
         console.log("Error:", data.message || "No email found");
@@ -190,19 +187,26 @@ const PresaleContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (isPayPangea) {
-      let email = getEmailAddressFromUserID();
-      console.log(email);
-      if (email !== "") {
-        getPayPangeaWalletAddress(email);
-      }
-    } else {
-      if (isConnected) {
-        setUserWalletAddress(addressData);
+    const fetchEmailAndSetWalletAddress = async () => {
+      if (isPayPangea) {
+        try {
+          const email = await getEmailAddressFromUserID();
+          if (email !== "") {
+            getPayPangeaWalletAddress(email);
+          }
+        } catch (error) {
+          console.error("Error fetching email:", error);
+        }
       } else {
-        setUserWalletAddress("");
+        if (isConnected) {
+          setUserWalletAddress(addressData);
+        } else {
+          setUserWalletAddress("");
+        }
       }
-    }
+    };
+
+    fetchEmailAndSetWalletAddress();
   }, [isPayPangea, isConnected]);
 
   useEffect(() => {
@@ -714,7 +718,7 @@ const PresaleContextProvider = ({ children }) => {
           contractaddress: configModule.presaleContractAddress,
           chain: "mainnet",
           contractfunction: "reserve",
-          contractabi: configModule.PresaleContractAbi,
+          contractabi: JSON.stringify(PresaleContractAbi),
           contractargs: JSON.stringify([
             (buyAmount * 10 ** 18).toString(),
             configModule.usdcAddress,
