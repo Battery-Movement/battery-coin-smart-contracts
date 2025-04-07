@@ -93,7 +93,7 @@ const HeaderWrapper = styled.div`
 
   .toggle-button {
     position: relative;
-    width: 120px;
+    width: 180px;
     height: 50px;
     background: #ffffff33;
     border-radius: 25px;
@@ -106,7 +106,7 @@ const HeaderWrapper = styled.div`
 
   .toggle-slider {
     position: absolute;
-    width: 50%;
+    width: 33%;
     height: 100%;
     background: white;
     border-radius: 25px;
@@ -118,8 +118,14 @@ const HeaderWrapper = styled.div`
     transform: translateX(0%);
   }
 
+  .toggle-slider.center {
+    transform: translateX(50%);
+    margin-left: 16.5%;
+  }
+
   .toggle-slider.right {
     transform: translateX(100%);
+    margin-left: 34%;
   }
 
   .toggle-icons {
@@ -139,6 +145,12 @@ const HeaderWrapper = styled.div`
   }
 
   .visa-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+  }
+
+  .coinbase-icon {
     width: 30px;
     height: 30px;
     margin-right: 5px;

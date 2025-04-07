@@ -17,7 +17,7 @@ const Banner = () => {
     getHashValuesByAddress,
     pauseStatus,
     userBATRBalance,
-    isPayPangea,
+    purchaseMethod,
   } = usePresaleData();
 
   const [configModule, setConfigModule] = useState(configModule1);
@@ -68,9 +68,9 @@ const Banner = () => {
               <Progressbar done={tokenPercent} variant="dashed3" />
             </div>
 
-            <PayWith variant="v1" isPayPangea={isPayPangea} />
+            <PayWith variant="v1" purchaseMethod={purchaseMethod} />
           </div>
-          {!isPayPangea &&
+          {purchaseMethod == 1 &&
             (Array.isArray(getHashValuesByAddress) ? (
               <div className="col-lg-4">
                 <div
