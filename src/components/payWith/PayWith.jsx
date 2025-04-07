@@ -8,7 +8,7 @@ import IconETH from "../../assets/images/token/ETH.jpg";
 import Icon1 from "../../assets/images/token/USDT.jpg";
 import Icon2 from "../../assets/images/token/USDC.jpg";
 
-const PayWith = ({ variant, isPayPangea }) => {
+const PayWith = ({ variant, purchaseMethod }) => {
   const {
     stageEnd,
     currentPrice,
@@ -23,6 +23,7 @@ const PayWith = ({ variant, isPayPangea }) => {
     buyToken,
     buyTokenWithETH,
     buyTokenWithPaypangea,
+    buyTokenWithCoinbase,
     setPaymentToken,
     USDTallowance,
     USDCallowance,
@@ -61,7 +62,7 @@ const PayWith = ({ variant, isPayPangea }) => {
         </div>
       )}
 
-      {!isPayPangea ? (
+      {purchaseMethod == 1 ? (
         <>
           <div className="presale-item mb-30">
             <div className="presale-item-inner">
@@ -178,8 +179,10 @@ const PayWith = ({ variant, isPayPangea }) => {
             <button className="presale-item-btn disabled-style" disabled>
               Processing...
             </button>
-          ) : (
+          ) : purchaseMethod == 2 ? (
             renderButton(buyTokenWithPaypangea, buttonText)
+          ) : (
+            renderButton(buyTokenWithCoinbase, buttonText)
           )}
         </>
       )}

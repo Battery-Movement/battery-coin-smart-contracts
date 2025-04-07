@@ -8,6 +8,7 @@ import {
   useWriteContract,
   useBlockNumber,
 } from "wagmi";
+import { initOnRamp } from "@coinbase/cbpay-js";
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
 import EthIcon from "../assets/images/token/eth.png";
@@ -40,7 +41,7 @@ const PresaleContextProvider = ({ children }) => {
   const [isInit, setIsInit] = useState(false);
   const [hashValue, setHashValue] = useState(null);
   const [ethPrice, setETHPrice] = useState(0);
-  const [isPayPangea, setIsPayPangea] = useState(false);
+  const [purchaseMethod, setPurchaseMethod] = useState(1);
 
   // buy token notification
   const [isActiveNotification, setIsActiveNotification] = useState(false);
@@ -50,6 +51,8 @@ const PresaleContextProvider = ({ children }) => {
   const [transactionHash, setTransactionHash] = useState(null);
   const [txBlockNumber, setTxBlockNumber] = useState(null);
   const [isEnableBuy, setIsEnableBuy] = useState(true);
+
+  const [onrampInstance, setOnrampInstance] = useState(null);
 
   const {
     data: buyTokenData,
@@ -138,6 +141,18 @@ const PresaleContextProvider = ({ children }) => {
   });
 
   useEffect(() => {
+    const url = new URL(window.location.href);
+    const buyMode = url.searchParams.get("buyMode");
+    if (buyMode === "credit") {
+      setPurchaseMethod(2);
+    } else if (buyMode === "crypto") {
+      setPurchaseMethod(1);
+    } else if (buyMode === "coinbase") {
+      setPurchaseMethod(3);
+    }
+  }, []);
+
+  useEffect(() => {
     if (userWalletData) {
       let tmp = parseFloat(userWalletData?.formatted).toFixed(2);
       setUserBATRBalance(`${tmp} ${userWalletData?.symbol}`);
@@ -154,7 +169,7 @@ const PresaleContextProvider = ({ children }) => {
     const userID = url.searchParams.get("userID");
     try {
       const response = await fetch(
-        "https://store.batterycoin.org/wp-json/userlookup/v1/email/",
+        "https://store.batterycoin.org/home/wp-json/userlookup/v1/email/",
         {
           method: "POST",
           headers: {
@@ -188,7 +203,7 @@ const PresaleContextProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchEmailAndSetWalletAddress = async () => {
-      if (isPayPangea) {
+      if (purchaseMethod == 2) {
         try {
           const email = await getEmailAddressFromUserID();
           if (email !== "") {
@@ -197,17 +212,54 @@ const PresaleContextProvider = ({ children }) => {
         } catch (error) {
           console.error("Error fetching email:", error);
         }
-      } else {
+      } else if (purchaseMethod == 1) {
         if (isConnected) {
           setUserWalletAddress(addressData);
         } else {
           setUserWalletAddress("");
         }
+      } else if (purchaseMethod == 3) {
+        // TODO:
       }
     };
 
     fetchEmailAndSetWalletAddress();
-  }, [isPayPangea, isConnected]);
+  }, [purchaseMethod, isConnected]);
+
+  useEffect(() => {
+    initOnRamp(
+      {
+        appId: configModule.coinbaseProductID,
+        widgetParameters: {
+          // Specify the addresses and which networks they support
+          addresses: { [configModule.presaleContractAddress]: ["ethereum"] },
+          // Filter the available assets on the above networks to just these ones
+          assets: ["ETH", "USDC"],
+        },
+        onSuccess: () => {
+          console.log("success");
+        },
+        onExit: () => {
+          console.log("exit");
+        },
+        onEvent: (event) => {
+          console.log("event", event);
+        },
+        experienceLoggedIn: "popup",
+        experienceLoggedOut: "popup",
+        closeOnExit: true,
+        closeOnSuccess: true,
+      },
+      (_, instance) => {
+        setOnrampInstance(instance);
+      }
+    );
+
+    // When button unmounts destroy the instance
+    return () => {
+      onrampInstance?.destroy();
+    };
+  }, []);
 
   useEffect(() => {
     if (
@@ -412,7 +464,7 @@ const PresaleContextProvider = ({ children }) => {
       is_refunded: presaleInfoData.isRefunded || false,
     };
 
-    fetch("https://api2.batterycoin.org/api/accounts/reserve/", {
+    fetch("https://api.batterycoin.org/api/accounts/reserve/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -782,6 +834,24 @@ const PresaleContextProvider = ({ children }) => {
     }
   };
 
+  const buyTokenWithCoinbase = async () => {
+    if (paymentAmount != "") {
+      try {
+        console.log("PayWithCoinbase");
+        onrampInstance?.open();
+      } catch (error) {
+        console.error(error);
+        console.error("Error during payment with Coinbase:", error);
+        alert(
+          "An error occurred while processing your payment. Please try again."
+        );
+      }
+    } else {
+      setHashValue(null);
+      setPresaleStatus("Please enter pay amount!");
+    }
+  };
+
   const getPayPangeaWalletAddress = (email) => {
     const data = {
       email: email,
@@ -839,6 +909,7 @@ const PresaleContextProvider = ({ children }) => {
         buyTokenWithETH,
         buyTokenData,
         buyTokenWithPaypangea,
+        buyTokenWithCoinbase,
         buyTokenIsLoading,
         buyTokenIsSuccess,
         buyTokenError,
@@ -854,8 +925,8 @@ const PresaleContextProvider = ({ children }) => {
         pauseStatus,
         isEnableBuy,
         userBATRBalance,
-        isPayPangea,
-        setIsPayPangea,
+        purchaseMethod,
+        setPurchaseMethod,
       }}
     >
       {children}

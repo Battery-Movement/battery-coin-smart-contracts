@@ -23,10 +23,10 @@ export const batrAddress = "0x7ae1ced8fc0ef32828ee12522029b8f3f38b9b2c";
 // import USDT_ABI from "../contracts/USDT_ABI_test.json";
 // import USDC_ABI from "../contracts/USDC_ABI_test.json";
 
-// // //network link
-// // // export const networkLink = "https://sepolia.etherscan.io/tx";
+// //network link
+// // export const networkLink = "https://sepolia.etherscan.io/tx";
 
-// // //token presale contract address
+// //token presale contract address
 // export const presaleContractAddress =
 //   "0x95c53A43AD220ADd8882B9197DE99a4732050f18";
 
@@ -46,7 +46,14 @@ export const battDecimal = 18;
 //payment with (eg. ETH, BNB, MATIC etc.)
 export const payWith = "ETH";
 
-export const secretKey = "BATT_STORE_API_KEY_0001";
+export const secretKey = "BATT_HOME_API_KEY_0001";
+
+export const coinbaseProductID = "ccf3cafe-8278-4877-8362-99fe0514fa8e";
+export const coinbaseOAuthClientID = "82fd5491-58a6-4710-8af8-11ef3f4b6b76";
+export const coinbaseSecretAPIKey = "9c0ac587-ebb2-4e8c-87c3-c04fae1e5ff3";
+export const coinbaseClientAPIKey = "tv9PyA5xBolN18mxXXfMH1MUaVAPm8CY";
+
+
 
 //token Presale contract configuration
 export const presaleContractConfig = {
