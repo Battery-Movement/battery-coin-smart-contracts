@@ -1,4 +1,4 @@
-import { usePresaleData } from "../../utils/PresaleContext";
+import { usePresaleData } from "../../contexts/PresaleContext";
 import TokenInfoWrapper from "./TokenInfo.style";
 
 const TokenInfo = ({ variant }) => {
