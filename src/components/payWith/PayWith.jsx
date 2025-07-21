@@ -3,7 +3,7 @@ import PayWithStyleWrapper from "./PayWith.style";
 import StatusIcon from "../../assets/images/icons/status.png";
 import StatusApproveIcon from "../../assets/images/icons/status_approve.png";
 import Dropdown from "./Dropdown/Dropdown";
-import { usePresaleData } from "../../contexts/PresaleContext";
+import { usePresaleData } from "../../utils/PresaleContext";
 import IconETH from "../../assets/images/token/ETH.jpg";
 import Icon1 from "../../assets/images/token/USDT.jpg";
 import Icon2 from "../../assets/images/token/USDC.jpg";
@@ -20,14 +20,17 @@ const PayWith = ({ variant, purchaseMethod }) => {
     handlePaymentInputFiat,
     handleBATRTokenInputFiat,
     buyAmount,
-
-
-
+    buyToken,
+    buyTokenWithETH,
+    buyTokenWithPaypangea,
+    buyTokenWithCoinbase,
     setPaymentToken,
-
-
+    USDTallowance,
+    USDCallowance,
+    approveUsdt,
+    approveUsdc,
     paymentToken,
-
+    amountUSDToPay,
     pauseStatus,
     isEnableBuy,
   } = usePresaleData();
@@ -35,6 +38,19 @@ const PayWith = ({ variant, purchaseMethod }) => {
   const isPresalePaused = Date.now() < stageEnd * 1000 || pauseStatus;
   const buttonText = isPresalePaused ? "Presale Paused" : "Buy Battery Coin";
 
+  const renderButton = (onClick, text) => {
+    return (
+      <button
+        className={`presale-item-btn ${
+          isPresalePaused ? "disabled-style" : ""
+        }`}
+        onClick={onClick}
+        disabled={isPresalePaused}
+      >
+        {text}
+      </button>
+    );
+  };
 
   return (
     <PayWithStyleWrapper variant={variant}>
@@ -93,8 +109,10 @@ const PayWith = ({ variant, purchaseMethod }) => {
               </div>
             )}
             {isEnableBuy &&
-              (paymentToken === "usdt" || paymentToken === "usdc") &&
-              !isApproved && (
+              ((paymentToken === "usdt" &&
+                parseFloat(USDTallowance) < parseFloat(amountUSDToPay)) ||
+                (paymentToken === "usdc" &&
+                  parseFloat(USDCallowance) < parseFloat(amountUSDToPay))) && (
                 <div className="presale-item-msg__approve">
                   <img src={StatusApproveIcon} alt="icon" />
                   <p>Please approve before purchase $BATR</p>
@@ -105,14 +123,24 @@ const PayWith = ({ variant, purchaseMethod }) => {
             <button className="presale-item-btn disabled-style" disabled>
               Processing...
             </button>
-          ) : paymentToken === "eth" || isApproved ? (
-            <button className="presale-item-btn" onClick={handleBuyToken}>
-              {isPresalePaused ? "Presale Paused" : "Buy Now"}
-            </button>
+          ) : paymentToken === "eth" ? (
+            renderButton(buyTokenWithETH, buttonText)
+          ) : paymentToken === "usdt" ? (
+            parseFloat(USDTallowance) >= parseFloat(amountUSDToPay) ? (
+              renderButton(buyToken, buttonText)
+            ) : (
+              renderButton(
+                approveUsdt,
+                isPresalePaused ? "Presale Paused" : "Approve"
+              )
+            )
+          ) : parseFloat(USDCallowance) >= parseFloat(amountUSDToPay) ? (
+            renderButton(buyToken, buttonText)
           ) : (
-            <button className="presale-item-btn" onClick={handleApprove}>
-              {isPresalePaused ? "Presale Paused" : "Approve"}
-            </button>
+            renderButton(
+              approveUsdc,
+              isPresalePaused ? "Presale Paused" : "Approve"
+            )
           )}
         </>
       ) : (
@@ -151,10 +179,10 @@ const PayWith = ({ variant, purchaseMethod }) => {
             <button className="presale-item-btn disabled-style" disabled>
               Processing...
             </button>
-          ) : purchaseMethod === 1 ? (
-            renderButton(buyTokenWithETH, buttonText)
+          ) : purchaseMethod == 2 ? (
+            renderButton(buyTokenWithPaypangea, buttonText)
           ) : (
-            renderButton(buyToken, buttonText)
+            renderButton(buyTokenWithCoinbase, buttonText)
           )}
         </>
       )}
