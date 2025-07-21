@@ -7,9 +7,7 @@ import Ethereum from "../../../assets/images/ethereum.png";
 import Debit from "../../../assets/images/debit.png";
 import Coinbase from "../../../assets/images/coinbase.png";
 import InstructionButton from "../../instructionButton/InstructionButton";
-import { usePresaleData } from "../../../contexts/PresaleContext";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { SocialLogin } from "../../auth/SocialLogin";
+import { usePresaleData } from "../../../utils/PresaleContext";
 
 const Header = () => {
   const { purchaseMethod, setPurchaseMethod } = usePresaleData();
@@ -40,8 +38,7 @@ const Header = () => {
               <div className="gittu-header-menu-toggle"></div>
               {purchaseMethod == 1 && (
                 <div className="gittu-header-right-menu">
-                  <SocialLogin />
-                  <ConnectButton />
+                  <ConnectWalletButton variant="blue" />
                 </div>
               )}
               <div className="gittu-header-right-menu toggle-container">

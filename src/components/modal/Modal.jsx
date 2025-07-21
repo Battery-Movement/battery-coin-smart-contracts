@@ -3,18 +3,15 @@ import Dropdown from "../dropdown/Dropdown";
 import ModalWrapper from "./Modal.style";
 import { CgClose } from "react-icons/cg";
 import StatusIcon from "../../assets/images/icons/status.png";
-import { useAccount, useBalance } from 'wagmi';
-import { usePresaleData } from "../../contexts/PresaleContext";
-import { usePresaleModal } from "../../contexts/ModalContext";
+import { usePresaleData } from "../../utils/PresaleContext";
+import { usePresaleModal } from "../../utils/ModalContext";
 
 const Modal = ({ ...props }) => {
-  const { address } = useAccount();
-  const { data: balanceData, isLoading: isBalanceLoading } = useBalance({ address });
   const {
     bnbChainId,
     ethChainId,
     userChainId,
-
+    userBalance,
     currentBonus,
     currentPrice,
     tokenSymbol,
@@ -46,7 +43,7 @@ const Modal = ({ ...props }) => {
           <div className="gittu-modal-body">
             <div className="mb-20">
               <h5 className="ff-outfit fw-600 text-white text-uppercase">
-                Balance: {isBalanceLoading ? 'Loading...' : `${parseFloat(balanceData?.formatted || '0').toFixed(2)} ${balanceData?.symbol}`}
+                Balance : {userBalance}
               </h5>
             </div>
 

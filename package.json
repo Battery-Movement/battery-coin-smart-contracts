@@ -10,11 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-
+    "@coinbase/cbpay-js": "^2.4.0",
     "@coinbase/onchainkit": "^0.38.1",
     "@rainbow-me/rainbowkit": "^2.1.2",
     "@tanstack/react-query": "^5.66.8",
-    "axios": "^1.10.0",
+    "axios": "^1.7.7",
     "bignumber.js": "^9.1.2",
     "bootstrap": "^5.3.3",
     "ethers": "^6.13.3",
