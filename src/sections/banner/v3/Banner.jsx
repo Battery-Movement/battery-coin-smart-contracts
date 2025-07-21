@@ -4,23 +4,48 @@ import Countdown from "../../../components/countdown/Countdown";
 import Progressbar from "../../../components/progressbar/Progressbar";
 import PayWith from "../../../components/payWith/PayWith";
 import BannerData from "../../../assets/data/bannerV3";
-import { usePresaleData } from "../../../utils/PresaleContext";
-import * as configModule1 from "../../../contracts/config";
+
+import { useAccount, useBalance } from 'wagmi';
+import { usePresaleData } from "../../../contexts/PresaleContext";
+import { payment } from '../../../services/api';
+
 
 const Banner = () => {
+  const [purchaseHistory, setPurchaseHistory] = useState([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const { address } = useAccount();
+
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (address) {
+        setIsLoadingHistory(true);
+        try {
+          const history = await payment.getPurchaseHistory(address);
+          setPurchaseHistory(history);
+        } catch (error) {
+          console.error("Failed to fetch purchase history", error);
+          setPurchaseHistory([]); // Clear history on error
+        }
+        setIsLoadingHistory(false);
+      }
+    };
+
+    fetchHistory();
+  }, [address]);
   const {
     currentStage,
     stageEnd,
     presaleToken,
     tokenRemain,
     tokenPercent,
-    getHashValuesByAddress,
+
     pauseStatus,
-    userBATRBalance,
+
     purchaseMethod,
   } = usePresaleData();
 
-  const [configModule, setConfigModule] = useState(configModule1);
+
 
   return (
     <BannerWrapper>
@@ -41,18 +66,14 @@ const Banner = () => {
                 {BannerData.title3}
               </h1> */}
               <h5 className="ff-outfit text-white">{BannerData.subtitle}</h5>
-              <h4>Your BATR balance : {userBATRBalance}</h4>
+
             </div>
           </div>
         </div>
         <div className="row">
           <div
             className={
-              Array.isArray(getHashValuesByAddress)
-                ? getHashValuesByAddress.length > 0
-                  ? "col-lg-8"
-                  : "col-lg-12"
-                : ""
+              isLoadingHistory ? "Loading..." : (purchaseHistory.length > 0 ? "Connected" : "Connect")
             }
           >
             <div className="mb-20 d-flex align-items-center justify-content-between gap-1 flex-wrap">
@@ -70,14 +91,16 @@ const Banner = () => {
 
             <PayWith variant="v1" purchaseMethod={purchaseMethod} />
           </div>
-          {purchaseMethod == 1 &&
-            (Array.isArray(getHashValuesByAddress) ? (
+          {purchaseMethod == 1 && (
+            isLoadingHistory ? (
+              <p>Loading purchase history...</p>
+            ) : purchaseHistory.length > 0 ? (
               <div className="col-lg-4">
                 <div
                   className="row justify-content-center"
                   style={{ maxHeight: "508px", overflowY: "auto" }}
                 >
-                  {getHashValuesByAddress.map((item, index) => {
+                  {purchaseHistory.map((item, index) => {
                     const isUSDT =
                       item.tokenSymbol === configModule.usdtAddress;
                     const isUSDC =
@@ -148,11 +171,6 @@ const Banner = () => {
                                 {parseFloat(item.totalBATRAmount) /
                                   Math.pow(10, configModule.battDecimal)}
                               </p>
-                              {/* <p className="mb-1">
-                              <strong>Remain BATR Amount:</strong>{" "}
-                              {parseFloat(item.releasedBATRAmount) /
-                                Math.pow(10, configModule.battDecimal)}
-                            </p> */}
                               <p className="mb-0">
                                 <strong>Total Paid Amount:</strong>{" "}
                                 {parseFloat(item.totalPaidAmount) /
@@ -168,8 +186,9 @@ const Banner = () => {
                 </div>
               </div>
             ) : (
-              <></>
-            ))}
+              <div className="col-lg-4"><p>No purchase history found.</p></div>
+            )
+          )}
         </div>
       </div>
     </BannerWrapper>

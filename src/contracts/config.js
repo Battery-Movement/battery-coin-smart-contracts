@@ -75,12 +75,6 @@ export const pauseStatus = {
   watch: true,
 };
 
-export const getHashValuesByAddress = {
-  ...presaleContractConfig,
-  functionName: "getHashValuesByAddress",
-  watch: true,
-};
-
 export const lastHashValue = {
   ...presaleContractConfig,
   functionName: "getLastHashValueByAddress",

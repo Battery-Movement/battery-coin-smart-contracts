@@ -1,6 +1,6 @@
 import InstructionModalWrapper from "./InstructionModal.style";
 import { CgClose } from "react-icons/cg";
-import { usePresaleModal } from "../../utils/ModalContext";
+import { usePresaleModal } from "../../contexts/ModalContext";
 
 const InstructionModal = ({ setIsModalVisible }) => {
   const { modalHandle } = usePresaleModal();
